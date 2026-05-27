@@ -1,0 +1,339 @@
+/* =========================================
+   PÁGINA GASTOS - ESTILOS
+========================================= */
+
+.gastos-container {
+  width: 100%;
+}
+
+.gastos-container h2 {
+  font-size: 1.8rem;
+  color: var(--color-texto);
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* =========================================
+   LAYOUT PRINCIPAL (Formulario + Tabla)
+========================================= */
+
+.gastos-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 2rem;
+}
+
+/* =========================================
+   FORMULARIO
+========================================= */
+
+.formulario-section {
+  background-color: var(--color-blanco);
+  padding: 1.8rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  height: fit-content;
+  border-left: 4px solid var(--color-principal);
+}
+
+.gastos-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--color-texto);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.65rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #b2d8d8;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s;
+  background-color: #f7fdfd;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--color-principal);
+  box-shadow: 0 0 0 3px rgba(58, 175, 169, 0.2);
+  background-color: var(--color-blanco);
+}
+
+.form-group input::placeholder {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.form-group small {
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 0.2rem;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.btn-agregar,
+.btn-cancelar {
+  flex: 1;
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-agregar {
+  background-color: var(--color-principal);
+  color: white;
+}
+
+.btn-agregar:hover {
+  background-color: var(--color-secundario);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(58, 175, 169, 0.3);
+}
+
+.btn-cancelar {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+.btn-cancelar:hover {
+  background-color: #ff5252;
+  transform: translateY(-2px);
+}
+
+/* =========================================
+   TABLA DE GASTOS
+========================================= */
+
+.tabla-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.tabla-section h3 {
+  font-size: 1.3rem;
+  color: var(--color-texto);
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.tabla-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.gastos-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-blanco);
+}
+
+.gastos-tabla thead {
+  background-color: var(--color-principal);
+  color: white;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.gastos-tabla th {
+  padding: 0.9rem 1rem;
+  text-align: left;
+  font-weight: 700;
+  border-bottom: 2px solid var(--color-principal);
+}
+
+.gastos-tabla td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #eef5f5;
+  font-size: 0.9rem;
+}
+
+.gastos-tabla tbody tr {
+  transition: background-color 0.2s;
+}
+
+.gastos-tabla tbody tr:hover {
+  background-color: var(--color-hover);
+}
+
+.gastos-tabla .monto {
+  font-weight: 600;
+  color: var(--color-principal);
+}
+
+/* Estados */
+.estado-badge {
+  display: inline-block;
+  padding: 0.35rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.estado-badge.pagado {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.estado-badge.pendiente {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+/* Filas con estado */
+.gastos-tabla tr.estado-pagado {
+  border-left: 4px solid #28a745;
+}
+
+.gastos-tabla tr.estado-pendiente {
+  border-left: 4px solid #ffc107;
+}
+
+/* Acciones */
+.acciones {
+  display: flex;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.btn-editar,
+.btn-eliminar {
+  padding: 0.4rem 0.7rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.btn-editar {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-editar:hover {
+  background-color: #138496;
+  transform: translateY(-2px);
+}
+
+.btn-eliminar {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-eliminar:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+}
+
+/* Sin gastos */
+.sin-gastos {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px dashed #ddd;
+}
+
+/* Resumen de estadísticas */
+.stats-resumen {
+  margin-top: 1.5rem;
+  padding: 1.2rem;
+  background: linear-gradient(135deg, var(--color-principal), var(--color-secundario));
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  gap: 2rem;
+  justify-content: flex-start;
+  font-weight: 600;
+}
+
+.stats-resumen p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1200px) {
+  .gastos-layout {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .gastos-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .formulario-section {
+    order: 2;
+  }
+
+  .tabla-section {
+    order: 1;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+
+  .btn-editar,
+  .btn-eliminar {
+    width: 100%;
+  }
+
+  .stats-resumen {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .gastos-tabla {
+    font-size: 0.8rem;
+  }
+
+  .gastos-tabla th,
+  .gastos-tabla td {
+    padding: 0.6rem 0.5rem;
+  }
+}
