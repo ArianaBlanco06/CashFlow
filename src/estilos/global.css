@@ -8,13 +8,7 @@
   --color-sidebar: #f0fafa;
 }
 
-<<<<<<< Updated upstream
-/* =========================================
-   RESET Y BASE
-========================================= */
-=======
 
->>>>>>> Stashed changes
 * {
   box-sizing: border-box;
   margin: 0;
@@ -27,13 +21,7 @@ body {
   color: var(--color-texto);
 }
 
-<<<<<<< Updated upstream
-/* =========================================
-   LAYOUT PRINCIPAL
-========================================= */
-=======
 
->>>>>>> Stashed changes
 .main-layout {
   display: flex;
   flex-direction: column;
@@ -62,13 +50,7 @@ header h1 {
   padding-bottom: 50px;
 }
 
-<<<<<<< Updated upstream
-/* =========================================
-   SIDEBAR
-========================================= */
-=======
 
->>>>>>> Stashed changes
 aside.sidebar {
   width: 230px;
   min-width: 230px;
@@ -114,11 +96,6 @@ aside.sidebar a:hover {
   color: var(--color-secundario);
 }
 
-<<<<<<< Updated upstream
-/* =========================================
-   TARJETA DE USUARIO (fondo del sidebar)
-========================================= */
-=======
 
 .sidebar-bottom {
   display: flex;
@@ -126,7 +103,6 @@ aside.sidebar a:hover {
   gap: 0.5rem;
 }
 
->>>>>>> Stashed changes
 .usuario-card {
   display: flex;
   align-items: center;
@@ -178,11 +154,6 @@ aside.sidebar a:hover {
   font-size: 0.72rem;
 }
 
-<<<<<<< Updated upstream
-/* =========================================
-   MAIN CONTENT
-========================================= */
-=======
 .btn-cerrar-sesion {
   width: 100%;
   background-color: transparent;
@@ -204,7 +175,6 @@ aside.sidebar a:hover {
 }
 
 
->>>>>>> Stashed changes
 main {
   flex: 1;
   padding: 2rem;
@@ -220,13 +190,7 @@ main {
   flex: 1;
 }
 
-<<<<<<< Updated upstream
-/* =========================================
-   FOOTER
-========================================= */
-=======
 
->>>>>>> Stashed changes
 footer {
   background-color: var(--color-secundario);
   padding: 0.8rem;
@@ -240,13 +204,7 @@ footer {
   box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
 }
 
-<<<<<<< Updated upstream
-/* =========================================
-   TABLAS
-========================================= */
-=======
 
->>>>>>> Stashed changes
 table {
   width: 100%;
   border-collapse: collapse;
@@ -281,13 +239,7 @@ tr:hover td {
   transition: background 0.2s;
 }
 
-<<<<<<< Updated upstream
-/* =========================================
-   INPUTS Y BOTONES
-========================================= */
-=======
 
->>>>>>> Stashed changes
 input[type="text"],
 input[type="date"],
 input[type="password"] {
@@ -322,11 +274,6 @@ button:hover {
   background-color: var(--color-secundario);
 }
 
-<<<<<<< Updated upstream
-/* =========================================
-   CARDS DE REPORTES (tarjetas de estadísticas)
-========================================= */
-=======
 
 .stats-row {
   display: flex;
@@ -335,7 +282,6 @@ button:hover {
   margin-bottom: 1rem;
 }
 
->>>>>>> Stashed changes
 .stats-card {
   flex: 1;
   background-color: var(--color-blanco);
@@ -360,15 +306,6 @@ button:hover {
   color: var(--color-texto);
 }
 
-<<<<<<< Updated upstream
-/* ── stats-row para alinear tarjetas ── */
-.stats-row {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-=======
 .stats-card--max  { border-left-color: #e05252; }
 .stats-card--min  { border-left-color: #52b788; }
 .stats-card--top  { border-left-color: #f4a261; }
@@ -377,32 +314,15 @@ button:hover {
 .stats-card--rojo    { border-left-color: #e07b39; }
 
 .stats-card .stats-sub,
->>>>>>> Stashed changes
 .stats-detalle {
   display: block;
   font-size: 0.75rem;
   color: #777;
   margin-top: 0.3rem;
-<<<<<<< Updated upstream
-}
-
-.stats-card--max { border-left-color: #e05252; }
-.stats-card--min { border-left-color: #52b788; }
-.stats-card--top { border-left-color: #f4a261; }
-
-/* ── Fila destacada tabla ── */
-.fila-destacada td {
-  background-color: #fff8e1;
-  font-weight: 600;
-}
-
-/* ── Barras de progreso ── */
-=======
   font-weight: 400;
 }
 
 
->>>>>>> Stashed changes
 .barra-contenedor {
   display: flex;
   align-items: center;
@@ -517,8 +437,6 @@ button:hover {
 .btn-eliminar:hover {
   color: #e05252;
   background-color: #fff0f0;
-<<<<<<< Updated upstream
-=======
 }
 
 
@@ -662,5 +580,4 @@ button:hover {
   background-color: rgba(255,255,255,0.15);
   color: white;
   border: 1px solid rgba(255,255,255,0.3);
->>>>>>> Stashed changes
 }
