@@ -45,11 +45,9 @@ header h1 {
   letter-spacing: 0.5px;
 }
 
-/* Cuerpo: sidebar + main lado a lado */
 .layout-body {
   display: flex;
   flex: 1;
-  /* Dejamos espacio para el footer fixed */
   padding-bottom: 50px;
 }
 
@@ -63,7 +61,7 @@ aside.sidebar {
   border-right: 1px solid #c8e8e6;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;  /* Nav arriba, usuario abajo */
+  justify-content: space-between;
   padding: 1.5rem 1rem;
 }
 
@@ -102,7 +100,7 @@ aside.sidebar a:hover {
 }
 
 /* =========================================
-   TARJETA DE USUARIO (fondo del sidebar)
+   TARJETA DE USUARIO
 ========================================= */
 .usuario-card {
   display: flex;
@@ -191,7 +189,7 @@ footer {
 }
 
 /* =========================================
-   TABLAS
+   TABLAS GENERALES
 ========================================= */
 table {
   width: 100%;
@@ -228,10 +226,11 @@ tr:hover td {
 }
 
 /* =========================================
-   INPUTS Y BOTONES
+   INPUTS Y SELECTS GENERALES
 ========================================= */
 input[type="text"],
-input[type="date"] {
+input[type="date"],
+select {
   padding: 0.45rem 0.7rem;
   border-radius: 6px;
   border: 1px solid #b2d8d8;
@@ -242,11 +241,15 @@ input[type="date"] {
   background-color: #f7fdfd;
 }
 
-input:focus {
+input:focus,
+select:focus {
   border-color: var(--color-principal);
   box-shadow: 0 0 0 3px rgba(58,175,169,0.2);
 }
 
+/* =========================================
+   BOTÓN GENERAL — base para todos
+========================================= */
 button {
   background-color: var(--color-principal);
   color: white;
@@ -264,8 +267,216 @@ button:hover {
 }
 
 /* =========================================
-   CARDS DE REPORTES (tarjetas de estadísticas)
+   BOTONES ESPECÍFICOS DE GASTOS
+   — van después del general para ganar
 ========================================= */
+.btn-editar {
+  background: #2b7a78 !important;
+  color: white !important;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.btn-editar:hover {
+  background: #1f5c5a !important;
+}
+
+.btn-eliminar-gasto {
+  background: #d64550 !important;
+  color: white !important;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.btn-eliminar-gasto:hover {
+  background: #b03040 !important;
+}
+
+.btn-guardar {
+  background: #3aafa9 !important;
+  color: white !important;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.btn-cancelar {
+  background: #7a7a7a !important;
+  color: white !important;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.btn-agregar {
+  width: 140px;
+  display: inline-block;
+  font-weight: 700;
+}
+
+/* =========================================
+   BOTÓN ELIMINAR DE RECORDATORIOS
+   — transparente, solo ícono
+========================================= */
+.btn-eliminar-recordatorio {
+  background: none !important;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.btn-eliminar-recordatorio:hover {
+  color: #e05252 !important;
+  background-color: #fff0f0 !important;
+}
+
+/* =========================================
+   GASTOS — layout y formulario
+========================================= */
+.gastos-page h2 {
+  margin-bottom: 1.3rem;
+  font-size: 1.7rem;
+  letter-spacing: 0.2px;
+}
+
+.gastos-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(620px, 2.2fr);
+  gap: 2rem;
+}
+
+.gastos-formulario {
+  background-color: #f7fdfd;
+  border: 1px solid #d3edec;
+  border-radius: 16px;
+  padding: 1.4rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+
+.gastos-formulario label {
+  display: block;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: var(--color-texto);
+}
+
+.gastos-formulario label span {
+  display: block;
+  margin-bottom: 0.45rem;
+}
+
+.gastos-fila {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.gastos-fila label {
+  flex: 1;
+}
+
+.gastos-error {
+  color: #b00020;
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+
+.gastos-tabla-contenedor {
+  display: flex;
+  flex-direction: column;
+}
+
+.gastos-tabla-contenedor h3 {
+  margin-bottom: 1rem;
+}
+
+.tabla-scroll {
+  height: 540px;
+  max-height: 540px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 12px;
+  border: 1px solid #d8eeec;
+  background-color: #f9fefc;
+}
+
+.tabla-scroll table {
+  width: 100%;
+  min-width: auto;
+  table-layout: fixed;
+  border-spacing: 0;
+}
+
+.tabla-scroll th,
+.tabla-scroll td {
+  overflow-wrap: anywhere;
+}
+
+.tabla-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+
+.tabla-scroll::-webkit-scrollbar-track {
+  background: #e6f2f1;
+  border-radius: 999px;
+}
+
+.tabla-scroll::-webkit-scrollbar-thumb {
+  background: #3aafa9;
+  border-radius: 999px;
+}
+
+.tabla-scroll::-webkit-scrollbar-thumb:hover {
+  background: #2b7a78;
+}
+
+.gastos-tabla-contenedor table th,
+.gastos-tabla-contenedor table td {
+  white-space: normal;
+  word-break: break-word;
+}
+
+.acciones-col {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.acciones-col button {
+  min-width: 75px;
+}
+
+.gastos-tabla-contenedor table {
+  font-size: 0.88rem;
+}
+
+.fila-editando td {
+  background-color: #f4faf9;
+}
+
+/* =========================================
+   STATS CARDS — reportes
+========================================= */
+.stats-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .stats-card {
   flex: 1;
   background-color: var(--color-blanco);
@@ -290,13 +501,6 @@ button:hover {
   color: var(--color-texto);
 }
 
-/* ── stats-row para alinear tarjetas ── */
-.stats-row {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
 .stats-detalle {
   font-size: 0.78rem;
   color: #888;
@@ -308,13 +512,14 @@ button:hover {
 .stats-card--min { border-left-color: #52b788; }
 .stats-card--top { border-left-color: #f4a261; }
 
-/* ── Fila destacada tabla ── */
 .fila-destacada td {
   background-color: #fff8e1;
   font-weight: 600;
 }
 
-/* ── Barras de progreso ── */
+/* =========================================
+   BARRAS DE PROGRESO
+========================================= */
 .barra-contenedor {
   display: flex;
   align-items: center;
@@ -335,7 +540,9 @@ button:hover {
   white-space: nowrap;
 }
 
-/* ── Recordatorios ── */
+/* =========================================
+   RECORDATORIOS
+========================================= */
 .recordatorio-form {
   display: flex;
   flex-wrap: wrap;
@@ -408,20 +615,4 @@ button:hover {
   font-size: 0.72rem;
   font-weight: 700;
   color: #e05252;
-}
-
-.btn-eliminar {
-  background: none;
-  border: none;
-  color: #ccc;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  transition: color 0.2s, background 0.2s;
-}
-
-.btn-eliminar:hover {
-  color: #e05252;
-  background-color: #fff0f0;
 }

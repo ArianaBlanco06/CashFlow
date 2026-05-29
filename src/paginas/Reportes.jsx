@@ -1,9 +1,4 @@
-import { useState } from 'react';
-import { mockExpenses } from '../data/mock.Expenses';
-
-const Reportes = () => {
-  const [expenses] = useState(mockExpenses);
-
+const Reportes = ({ expenses }) => {
   // --- Cálculos generales ---
   const totalGastos = expenses.reduce((acc, e) => acc + e.monto, 0);
   const cantidadGastos = expenses.length;

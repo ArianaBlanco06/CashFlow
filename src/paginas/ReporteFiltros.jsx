@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { mockExpenses } from '../data/mock.Expenses';
 
-const ReporteFiltros = () => {
+const ReporteFiltros = ({ expenses }) => {
   // ── Estados para filtros ──
   const [categoria, setCategoria] = useState('');
   const [fechaInicio, setFechaInicio] = useState('');
@@ -19,7 +18,7 @@ const ReporteFiltros = () => {
   const hoy = new Date().toISOString().split('T')[0];
 
   // ── Filtrado de gastos ──
-  const filtered = mockExpenses.filter(exp => {
+  const filtered = expenses.filter(exp => {
     return (
       exp.categoria.toLowerCase().includes(categoria.toLowerCase()) &&
       (fechaInicio === '' || exp.fecha >= fechaInicio) &&
@@ -126,7 +125,7 @@ const ReporteFiltros = () => {
                 {vencido && <span className="badge-vencido">⚠️ Vencido</span>}
                 <span>{r.fechaLimite}</span>
               </div>
-              <button className="btn-eliminar" onClick={() => eliminarRecordatorio(r.id)} title="Eliminar">✕</button>
+              <button className="btn-eliminar-recordatorio" onClick={() => eliminarRecordatorio(r.id)} title="Eliminar">✕</button>
             </div>
           );
         })}
