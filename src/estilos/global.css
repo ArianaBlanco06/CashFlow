@@ -37,6 +37,9 @@ header {
   padding: 1rem 2rem;
   color: white;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 header h1 {
@@ -99,6 +102,12 @@ aside.sidebar a:hover {
   color: var(--color-secundario);
 }
 
+.sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 /* =========================================
    TARJETA DE USUARIO
 ========================================= */
@@ -109,7 +118,6 @@ aside.sidebar a:hover {
   background-color: var(--color-secundario);
   border-radius: 10px;
   padding: 0.8rem;
-  margin-top: 1rem;
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
 }
@@ -152,6 +160,49 @@ aside.sidebar a:hover {
 .usuario-rol {
   color: rgba(255,255,255,0.75);
   font-size: 0.72rem;
+}
+
+.btn-cerrar-sesion {
+  width: 100%;
+  background-color: transparent;
+  color: var(--color-secundario);
+  border: 2px solid var(--color-secundario);
+  border-radius: 8px;
+  padding: 0.55rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: background 0.2s, color 0.2s;
+  text-align: center;
+}
+
+.btn-cerrar-sesion:hover {
+  background-color: var(--color-secundario);
+  color: white;
+}
+
+/* =========================================
+   BADGE DE ROL en el header
+========================================= */
+.rol-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  vertical-align: middle;
+}
+
+.rol-badge--admin {
+  background-color: rgba(255,255,255,0.25);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+.rol-badge--usuario {
+  background-color: rgba(255,255,255,0.15);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
 }
 
 /* =========================================
@@ -230,6 +281,7 @@ tr:hover td {
 ========================================= */
 input[type="text"],
 input[type="date"],
+input[type="password"],
 select {
   padding: 0.45rem 0.7rem;
   border-radius: 6px;
@@ -248,7 +300,7 @@ select:focus {
 }
 
 /* =========================================
-   BOTÓN GENERAL — base para todos
+   BOTÓN GENERAL
 ========================================= */
 button {
   background-color: var(--color-principal);
@@ -267,8 +319,7 @@ button:hover {
 }
 
 /* =========================================
-   BOTONES ESPECÍFICOS DE GASTOS
-   — van después del general para ganar
+   BOTONES ESPECÍFICOS
 ========================================= */
 .btn-editar {
   background: #2b7a78 !important;
@@ -280,9 +331,7 @@ button:hover {
   cursor: pointer;
 }
 
-.btn-editar:hover {
-  background: #1f5c5a !important;
-}
+.btn-editar:hover { background: #1f5c5a !important; }
 
 .btn-eliminar-gasto {
   background: #d64550 !important;
@@ -294,9 +343,7 @@ button:hover {
   cursor: pointer;
 }
 
-.btn-eliminar-gasto:hover {
-  background: #b03040 !important;
-}
+.btn-eliminar-gasto:hover { background: #b03040 !important; }
 
 .btn-guardar {
   background: #3aafa9 !important;
@@ -324,10 +371,6 @@ button:hover {
   font-weight: 700;
 }
 
-/* =========================================
-   BOTÓN ELIMINAR DE RECORDATORIOS
-   — transparente, solo ícono
-========================================= */
 .btn-eliminar-recordatorio {
   background: none !important;
   border: none;
@@ -342,6 +385,193 @@ button:hover {
 .btn-eliminar-recordatorio:hover {
   color: #e05252 !important;
   background-color: #fff0f0 !important;
+}
+
+.btn-suspender {
+  background: #f4a261 !important;
+  color: white !important;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.btn-suspender:hover { background: #e07b39 !important; }
+
+.btn-activar {
+  background: #52b788 !important;
+  color: white !important;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.btn-activar:hover { background: #3a9668 !important; }
+
+/* =========================================
+   LOGIN
+========================================= */
+.login-fondo {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #def2f1, #b2e4e2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(43,122,120,0.15);
+  width: 100%;
+  max-width: 400px;
+  overflow: hidden;
+}
+
+.login-header {
+  background: linear-gradient(135deg, var(--color-principal), var(--color-secundario));
+  padding: 2rem;
+  text-align: center;
+  color: white;
+}
+
+.login-icono {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.login-titulo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: white;
+}
+
+.login-subtitulo {
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.8);
+}
+
+.login-body {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.login-campo label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-texto);
+}
+
+.login-campo input {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #c8e8e6;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: 0.2s;
+  box-sizing: border-box;
+}
+
+.login-campo input:focus {
+  border-color: var(--color-principal);
+  box-shadow: 0 0 0 3px rgba(58,175,169,0.2);
+}
+
+.login-campo-error {
+  color: #c0392b;
+  font-size: 0.78rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.login-error {
+  background-color: #fde8e8;
+  color: #c0392b;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  border-left: 3px solid #e74c3c;
+}
+
+.login-btn {
+  background: linear-gradient(135deg, var(--color-principal), var(--color-secundario));
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  font-family: 'Poppins', sans-serif;
+  width: 100%;
+}
+
+.login-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.login-hint {
+  background-color: #f0fafa;
+  border: 1px dashed #b2d8d8;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  font-size: 0.78rem;
+  color: #555;
+  line-height: 1.7;
+}
+
+.login-hint p { margin: 0; }
+
+.login-link {
+  color: var(--color-principal);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.login-link:hover { color: var(--color-secundario); }
+
+/* ── Fortaleza de contraseña ── */
+.fuerza-contenedor {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.fuerza-barra {
+  height: 6px;
+  border-radius: 4px;
+  flex: 1;
+  transition: background 0.3s;
+}
+
+.fuerza-debil  { background-color: #e05252; }
+.fuerza-media  { background-color: #f4a261; }
+.fuerza-fuerte { background-color: #52b788; }
+
+.fuerza-texto {
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 40px;
 }
 
 /* =========================================
@@ -385,9 +615,7 @@ button:hover {
   flex-wrap: wrap;
 }
 
-.gastos-fila label {
-  flex: 1;
-}
+.gastos-fila label { flex: 1; }
 
 .gastos-error {
   color: #b00020;
@@ -400,9 +628,7 @@ button:hover {
   flex-direction: column;
 }
 
-.gastos-tabla-contenedor h3 {
-  margin-bottom: 1rem;
-}
+.gastos-tabla-contenedor h3 { margin-bottom: 1rem; }
 
 .tabla-scroll {
   height: 540px;
@@ -422,51 +648,20 @@ button:hover {
 }
 
 .tabla-scroll th,
-.tabla-scroll td {
-  overflow-wrap: anywhere;
-}
+.tabla-scroll td { overflow-wrap: anywhere; }
 
-.tabla-scroll::-webkit-scrollbar {
-  width: 10px;
-}
-
-.tabla-scroll::-webkit-scrollbar-track {
-  background: #e6f2f1;
-  border-radius: 999px;
-}
-
-.tabla-scroll::-webkit-scrollbar-thumb {
-  background: #3aafa9;
-  border-radius: 999px;
-}
-
-.tabla-scroll::-webkit-scrollbar-thumb:hover {
-  background: #2b7a78;
-}
+.tabla-scroll::-webkit-scrollbar { width: 10px; }
+.tabla-scroll::-webkit-scrollbar-track { background: #e6f2f1; border-radius: 999px; }
+.tabla-scroll::-webkit-scrollbar-thumb { background: #3aafa9; border-radius: 999px; }
+.tabla-scroll::-webkit-scrollbar-thumb:hover { background: #2b7a78; }
 
 .gastos-tabla-contenedor table th,
-.gastos-tabla-contenedor table td {
-  white-space: normal;
-  word-break: break-word;
-}
+.gastos-tabla-contenedor table td { white-space: normal; word-break: break-word; }
 
-.acciones-col {
-  display: flex;
-  gap: 0.35rem;
-  flex-wrap: wrap;
-}
-
-.acciones-col button {
-  min-width: 75px;
-}
-
-.gastos-tabla-contenedor table {
-  font-size: 0.88rem;
-}
-
-.fila-editando td {
-  background-color: #f4faf9;
-}
+.acciones-col { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.acciones-col button { min-width: 75px; }
+.gastos-tabla-contenedor table { font-size: 0.88rem; }
+.fila-editando td { background-color: #f4faf9; }
 
 /* =========================================
    STATS CARDS — reportes
@@ -512,33 +707,14 @@ button:hover {
 .stats-card--min { border-left-color: #52b788; }
 .stats-card--top { border-left-color: #f4a261; }
 
-.fila-destacada td {
-  background-color: #fff8e1;
-  font-weight: 600;
-}
+.fila-destacada td { background-color: #fff8e1; font-weight: 600; }
 
 /* =========================================
    BARRAS DE PROGRESO
 ========================================= */
-.barra-contenedor {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-}
-
-.barra-progreso {
-  height: 10px;
-  background-color: var(--color-principal);
-  border-radius: 5px;
-  min-width: 4px;
-}
-
-.barra-label {
-  font-size: 0.8rem;
-  color: var(--color-secundario);
-  white-space: nowrap;
-}
+.barra-contenedor { display: flex; align-items: center; gap: 0.5rem; width: 100%; }
+.barra-progreso { height: 10px; background-color: var(--color-principal); border-radius: 5px; min-width: 4px; }
+.barra-label { font-size: 0.8rem; color: var(--color-secundario); white-space: nowrap; }
 
 /* =========================================
    RECORDATORIOS
@@ -565,32 +741,12 @@ button:hover {
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
-.recordatorio-completado {
-  opacity: 0.55;
-  border-left-color: #aaa;
-}
+.recordatorio-completado { opacity: 0.55; border-left-color: #aaa; }
+.recordatorio-completado .recordatorio-desc { text-decoration: line-through; color: #aaa; }
+.recordatorio-vencido { border-left-color: #e05252; background-color: #fff5f5; }
 
-.recordatorio-completado .recordatorio-desc {
-  text-decoration: line-through;
-  color: #aaa;
-}
-
-.recordatorio-vencido {
-  border-left-color: #e05252;
-  background-color: #fff5f5;
-}
-
-.recordatorio-texto {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.recordatorio-desc {
-  font-weight: 600;
-  font-size: 0.9rem;
-}
+.recordatorio-texto { flex: 1; display: flex; flex-direction: column; gap: 0.2rem; }
+.recordatorio-desc { font-weight: 600; font-size: 0.9rem; }
 
 .recordatorio-cat {
   font-size: 0.75rem;
@@ -611,8 +767,70 @@ button:hover {
   white-space: nowrap;
 }
 
-.badge-vencido {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #e05252;
+.badge-vencido { font-size: 0.72rem; font-weight: 700; color: #e05252; }
+
+/* =========================================
+   USUARIOS
+========================================= */
+.usuarios-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  align-items: start;
 }
+
+.usuarios-formulario {
+  background-color: #f7fdfd;
+  border: 1px solid #d3edec;
+  border-radius: 16px;
+  padding: 1.4rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.usuarios-formulario h3 {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: var(--color-secundario);
+}
+
+.form-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.9rem;
+}
+
+.form-grupo label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-texto);
+}
+
+.usuarios-error { color: #c0392b; font-size: 0.78rem; }
+
+.rol-tag {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.rol-tag--admin { background-color: #e8f0fe; color: #1a56db; border: 1px solid #c3d3fb; }
+.rol-tag--usuario { background-color: #e8faf5; color: #2b7a78; border: 1px solid #b2e4e2; }
+
+.estado-tag {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.estado-tag--activo { background-color: #e8faf5; color: #1e8449; border: 1px solid #b2ddc8; }
+.estado-tag--suspendido { background-color: #fde8e8; color: #c0392b; border: 1px solid #f5c6c6; }
+
+.fila-suspendida td { opacity: 0.55; background-color: #fafafa; }
