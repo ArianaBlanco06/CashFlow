@@ -15,33 +15,67 @@ import Perfil         from '../paginas/Perfil';
 import Usuarios       from '../paginas/Usuarios';
 import MainLayout     from '../componentes/MainLayout';
 
+// ── Helpers localStorage ──
+const cargar = (clave, valorDefecto) => {
+  try {
+    const guardado = localStorage.getItem(clave);
+    return guardado ? JSON.parse(guardado) : valorDefecto;
+  } catch {
+    return valorDefecto;
+  }
+};
+
+const guardar = (clave, valor) => {
+  localStorage.setItem(clave, JSON.stringify(valor));
+};
+
 const AppRuta = () => {
   const [usuarioActivo, setUsuarioActivo] = useState(null);
-  const [usuarios, setUsuarios]           = useState(mockUsuarios);
-  const [categorias, setCategorias]       = useState(mockCategorias);
-  const [facturas, setFacturas]           = useState(mockFacturas);
 
-  // Cada gasto tiene un campo "usuarioId" para saber a quién pertenece
-  const [expenses, setExpenses] = useState(
-    mockExpenses.map(e => ({ ...e, usuarioId: 1 })) // los mock pertenecen al admin
+  // ── Estados con localStorage ──
+  const [usuarios, setUsuariosState] = useState(() => cargar('usuarios', mockUsuarios));
+  const [categorias, setCategoriasState] = useState(() => cargar('categorias', mockCategorias));
+  const [facturas, setFacturasState] = useState(() => cargar('facturas', mockFacturas));
+  const [expenses, setExpensesState] = useState(() =>
+    cargar('expenses', mockExpenses.map(e => ({ ...e, usuarioId: 1 })))
   );
 
-  // ── Filtrar gastos del usuario activo ──
+  // ── Wrappers que guardan en localStorage al actualizar ──
+  const setUsuarios = (valor) => {
+    const nuevo = typeof valor === 'function' ? valor(usuarios) : valor;
+    setUsuariosState(nuevo);
+    guardar('usuarios', nuevo);
+  };
+
+  const setCategorias = (valor) => {
+    const nuevo = typeof valor === 'function' ? valor(categorias) : valor;
+    setCategoriasState(nuevo);
+    guardar('categorias', nuevo);
+  };
+
+  const setFacturas = (valor) => {
+    const nuevo = typeof valor === 'function' ? valor(facturas) : valor;
+    setFacturasState(nuevo);
+    guardar('facturas', nuevo);
+  };
+
+  const setExpenses = (valor) => {
+    const nuevo = typeof valor === 'function' ? valor(expenses) : valor;
+    setExpensesState(nuevo);
+    guardar('expenses', nuevo);
+  };
+
+  // ── Gastos filtrados por usuario activo ──
   const misGastos = usuarioActivo
     ? expenses.filter(e => e.usuarioId === usuarioActivo.id)
     : [];
 
-  // ── setMisGastos: actualiza solo los gastos del usuario activo ──
   const setMisGastos = (fn) => {
     setExpenses(prev => {
-      // Separar los gastos de otros usuarios
-      const otrosGastos = prev.filter(e => e.usuarioId !== usuarioActivo.id);
-      // Obtener los gastos actuales del usuario
-      const gastosActuales = prev.filter(e => e.usuarioId === usuarioActivo.id);
-      // Aplicar la función de actualización solo a los del usuario
+      const otrosGastos      = prev.filter(e => e.usuarioId !== usuarioActivo.id);
+      const gastosActuales   = prev.filter(e => e.usuarioId === usuarioActivo.id);
       const gastosActualizados = typeof fn === 'function' ? fn(gastosActuales) : fn;
-      // Asegurarse que todos tengan el usuarioId correcto
-      const gastosConId = gastosActualizados.map(e => ({ ...e, usuarioId: usuarioActivo.id }));
+      const gastosConId      = gastosActualizados.map(e => ({ ...e, usuarioId: usuarioActivo.id }));
       return [...otrosGastos, ...gastosConId];
     });
   };
@@ -76,7 +110,13 @@ const AppRuta = () => {
           } />
           <Route path="/reportes"       element={<Reportes expenses={misGastos} />} />
           <Route path="/reporteFiltros" element={<ReporteFiltros expenses={misGastos} />} />
-          <Route path="/perfil"         element={<Perfil usuario={usuarioActivo} />} />
+          <Route path="/perfil"         element={
+            <Perfil
+              usuario={usuarioActivo}
+              usuarios={usuarios}
+              setUsuarios={setUsuarios}
+            />
+          } />
 
           <Route path="/invoices" element={
             usuarioActivo.rol === 'admin'
