@@ -70,7 +70,7 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
     setTimeout(() => setVista('login'), 2500);
   };
 
-  // ── BIENVENIDA ──
+
   if (vista === 'bienvenida') {
     return (
       <div className="login-fondo">
@@ -96,7 +96,7 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
     );
   }
 
-  // ── REGISTRO ──
+
   if (vista === 'registro') {
     return (
       <div className="login-fondo">
@@ -106,7 +106,8 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
             <span className="login-app-nombre">CashFlow</span>
           </div>
           <h1 className="login-tagline">Gestiona tus finanzas<br />con inteligencia.</h1>
-          <p className="login-desc">Registra gastos, emite facturas y toma decisiones basadas en datos.</p>
+          <p className="login-desc">Registra gastos, emite facturas, visualiza reportes y toma
+          decisiones basadas en datos reales.</p>
           <div className="login-features">
             <div className="login-feature"><span>📊</span><span>Dashboard financiero en tiempo real</span></div>
             <div className="login-feature"><span>🧾</span><span>Gestión de gastos y facturas</span></div>
@@ -124,21 +125,21 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
 
             <div className="login-campo">
               <label>Nombre completo</label>
-              <input type="text" placeholder="Ej: Juan Pérez" value={regNombre}
+              <input type="text" autoComplete="off" placeholder="Ej: Juan Pérez" value={regNombre}
                 onChange={e => setRegNombre(e.target.value)} />
               {regNombreError && <span className="login-campo-error">{regNombreError}</span>}
             </div>
 
             <div className="login-campo">
               <label>Usuario</label>
-              <input type="text" placeholder="Ej: juan123" value={regUsuario}
+              <input type="text" autoComplete="off"  placeholder="Ej: juan123" value={regUsuario}
                 onChange={e => setRegUsuario(e.target.value)} />
               {regUsuarioError && <span className="login-campo-error">{regUsuarioError}</span>}
             </div>
 
             <div className="login-campo">
               <label>Contraseña</label>
-              <input type="password" placeholder="Mínimo 6 caracteres" value={regClave}
+              <input type="password" autoComplete="new-password" placeholder="Mínimo 6 caracteres" value={regClave}
                 onChange={e => setRegClave(e.target.value)} />
               {regClave.length > 0 && fortaleza && (
                 <div className="fuerza-contenedor">
@@ -151,7 +152,7 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
 
             <div className="login-campo">
               <label>Confirmar contraseña</label>
-              <input type="password" placeholder="Repite tu contraseña" value={regConfirm}
+              <input type="password" autoComplete="new-password" placeholder="Repite tu contraseña" value={regConfirm}
                 onChange={e => setRegConfirm(e.target.value)} />
               {regConfirmError && <span className="login-campo-error">{regConfirmError}</span>}
             </div>
@@ -168,7 +169,7 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
     );
   }
 
-  // ── LOGIN ──
+ 
   return (
     <div className="login-fondo">
       {/* Lado izquierdo — branding */}
@@ -204,6 +205,7 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
             <label>Usuario</label>
             <input
               type="text"
+              autoComplete="off"
               placeholder="Ej: admin"
               value={usuarioInput}
               onChange={e => { setUsuarioInput(e.target.value); setErrorLogin(''); }}

@@ -15,7 +15,7 @@ import Perfil         from '../paginas/Perfil';
 import Usuarios       from '../paginas/Usuarios';
 import MainLayout     from '../componentes/MainLayout';
 
-// ── Helpers localStorage ──
+
 const cargar = (clave, valorDefecto) => {
   try {
     const guardado = localStorage.getItem(clave);
@@ -40,14 +40,14 @@ const AppRuta = () => {
     cargar('expenses', mockExpenses.map(e => ({ ...e, usuarioId: 1 })))
   );
 
-  // ── Wrappers con localStorage ──
+
   const setUsuarios   = (v) => { const n = typeof v === 'function' ? v(usuarios)    : v; setUsuariosState(n);   guardar('usuarios', n);   };
   const setCategorias = (v) => { const n = typeof v === 'function' ? v(categorias)  : v; setCategoriasState(n); guardar('categorias', n); };
   const setFacturas   = (v) => { const n = typeof v === 'function' ? v(facturas)    : v; setFacturasState(n);   guardar('facturas', n);   };
   const setMetaMensual= (v) => { const n = typeof v === 'function' ? v(metaMensual) : v; setMetaMensualState(n);guardar('metaMensual', n);};
   const setExpenses   = (v) => { const n = typeof v === 'function' ? v(expenses)    : v; setExpensesState(n);   guardar('expenses', n);   };
 
-  // ── Gastos filtrados por usuario activo ──
+
   const misGastos = usuarioActivo
     ? expenses.filter(e => e.usuarioId === usuarioActivo.id)
     : [];
@@ -62,7 +62,7 @@ const AppRuta = () => {
     });
   };
 
-  // ── Login: guarda ultimoAcceso del usuario ──
+
   const handleLogin = (u) => {
     const ahora = new Date().toISOString();
     const actualizados = usuarios.map(usr =>

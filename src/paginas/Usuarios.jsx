@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import '../estilos/usuarios.css';
 
-// ── Formatea la fecha de último acceso ──
+
 const formatearAcceso = (fecha) => {
   if (!fecha) return <span className="acceso-nunca">Nunca</span>;
 
@@ -31,37 +31,37 @@ const Usuarios = ({ usuarios, setUsuarios }) => {
   const [form, setForm]           = useState({ nombre: '', usuario: '', clave: '', rol: 'usuario' });
   const [formError, setFormError] = useState({});
 
-  // ── Contadores ──
+
   const totalAdmins      = usuarios.filter(u => u.rol === 'admin').length;
   const totalUsuarios    = usuarios.filter(u => u.rol === 'usuario').length;
   const totalSuspendidos = usuarios.filter(u => u.estado === 'suspendido').length;
 
-  // ── Filtrar por búsqueda ──
+
   const usuariosFiltrados = usuarios.filter(u =>
     u.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
     u.usuario.toLowerCase().includes(busqueda.toLowerCase())
   );
 
-  // ── Toggle de rol ──
+
   const toggleRol = (id) => {
     setUsuarios(usuarios.map(u =>
       u.id === id ? { ...u, rol: u.rol === 'admin' ? 'usuario' : 'admin' } : u
     ));
   };
 
-  // ── Toggle suspender/activar ──
+
   const toggleEstado = (id) => {
     setUsuarios(usuarios.map(u =>
       u.id === id ? { ...u, estado: u.estado === 'activo' ? 'suspendido' : 'activo' } : u
     ));
   };
 
-  // ── Eliminar usuario ──
+
   const eliminarUsuario = (id) => {
     setUsuarios(usuarios.filter(u => u.id !== id));
   };
 
-  // ── Agregar usuario desde el panel ──
+
   const agregarUsuario = () => {
     const errores = {};
     if (form.nombre.trim() === '')  errores.nombre  = 'El nombre es obligatorio.';

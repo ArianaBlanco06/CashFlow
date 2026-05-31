@@ -1,4 +1,3 @@
-// src/data/mock.Expenses.js
 export const mockExpenses = [
   { id: 1, descripcion: "Almuerzo", categoria: "Alimentación", monto: 25.5, fecha: "2026-05-20", estado: "Pagado" },
   { id: 2, descripcion: "Transporte", categoria: "Transporte", monto: 8, fecha: "2026-05-21", estado: "Pagado" },

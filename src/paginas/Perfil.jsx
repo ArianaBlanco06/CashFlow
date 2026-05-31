@@ -26,7 +26,7 @@ const Perfil = ({ usuario, setUsuarios, usuarios }) => {
       return;
     }
 
-    // Actualizar en la lista de usuarios
+ 
     const actualizados = usuarios.map(u => {
       if (u.id === usuario.id) {
         return {

@@ -2,12 +2,11 @@ import { useState } from 'react';
 import '../estilos/filtros.css';
 
 const ReporteFiltros = ({ expenses }) => {
-  // ── Estados para filtros ──
+
   const [categoria, setCategoria] = useState('');
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
 
-  // ── Estados para recordatorios ──
   const [recordatorios, setRecordatorios] = useState([
     { id: 1, descripcion: 'Pagar internet', categoria: 'Servicios', fechaLimite: '2026-05-20', completado: false },
     { id: 2, descripcion: 'Revisar gastos del mes', categoria: 'Educación', fechaLimite: '2026-06-01', completado: false }
@@ -18,7 +17,7 @@ const ReporteFiltros = ({ expenses }) => {
 
   const hoy = new Date().toISOString().split('T')[0];
 
-  // ── Filtrado de gastos ──
+
   const filtered = expenses.filter(exp => {
     return (
       exp.categoria.toLowerCase().includes(categoria.toLowerCase()) &&
@@ -27,7 +26,7 @@ const ReporteFiltros = ({ expenses }) => {
     );
   });
 
-  // ── Agregar recordatorio ──
+
   const agregarRecordatorio = () => {
     if (nuevoDesc.trim() === '' || nuevaFecha === '') return;
     const nuevo = {
@@ -43,7 +42,7 @@ const ReporteFiltros = ({ expenses }) => {
     setNuevaFecha('');
   };
 
-  // ── Marcar/desmarcar completado ──
+
   const toggleCompletado = (id) => {
     const actualizados = recordatorios.map(r => {
       if (r.id === id) {
@@ -54,7 +53,7 @@ const ReporteFiltros = ({ expenses }) => {
     setRecordatorios(actualizados);
   };
 
-  // ── Eliminar recordatorio ──
+
   const eliminarRecordatorio = (id) => {
     const filtrados = recordatorios.filter(r => r.id !== id);
     setRecordatorios(filtrados);

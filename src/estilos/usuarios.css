@@ -1,6 +1,4 @@
-/* =========================================
-   USUARIOS
-========================================= */
+
 .usuarios-grid {
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -53,7 +51,7 @@
 .estado-tag--activo { background-color: #e8faf5; color: #1e8449; border: 1px solid #b2ddc8; }
 .estado-tag--suspendido { background-color: #fde8e8; color: #c0392b; border: 1px solid #f5c6c6; }
 
-/* ── Último acceso ── */
+
 .acceso-fecha {
   font-size: 0.82rem;
   color: var(--color-secundario);
