@@ -76,7 +76,7 @@ const Dashboard = ({ expenses, metaMensual, setMetaMensual }) => {
     });
   }
   for (let categoria in categorias) {
-    if (categorias[categoria].total > totalGastado * 0.5) {
+    if (categorias[categoria].total > metaMensual * 0.5) {
       recomendaciones.push({
         icono: "📊",
         texto: `${categoria} consume más de la mitad de tu presupuesto`,
