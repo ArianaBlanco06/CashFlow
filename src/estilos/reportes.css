@@ -1,6 +1,4 @@
-/* =========================================
-   REPORTES
-========================================= */
+
 .barra-contenedor { display: flex; align-items: center; gap: 0.5rem; width: 100%; }
 
 .barra-progreso {
@@ -12,9 +10,7 @@
 
 .barra-label { font-size: 0.8rem; color: var(--color-secundario); white-space: nowrap; }
 
-/* =========================================
-   META DE AHORRO MENSUAL
-========================================= */
+
 .meta-seccion {
   background-color: var(--color-blanco);
   border-radius: 12px;
@@ -86,7 +82,7 @@
   text-align: right;
 }
 
-/* Resumen de 3 columnas */
+
 .meta-resumen {
   display: flex;
   gap: 1rem;
@@ -115,7 +111,7 @@
   font-size: 1.1rem;
 }
 
-/* Alertas */
+
 .meta-alerta {
   background-color: #fde8e8;
   color: #c0392b;
@@ -132,7 +128,7 @@
   border-left-color: #f4a261;
 }
 
-/* ── Tarjetas de distribución por categoría ── */
+
 .meta-categorias-grid {
   display: flex;
   flex-wrap: wrap;

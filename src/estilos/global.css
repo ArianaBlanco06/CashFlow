@@ -1,6 +1,4 @@
-/* =========================================
-   VARIABLES Y RESET
-========================================= */
+
 :root {
   --color-principal: #3aafa9;
   --color-secundario: #2b7a78;
@@ -9,6 +7,8 @@
   --color-texto: #17252a;
   --color-blanco: #ffffff;
   --color-sidebar: #f0fafa;
+  --color-sidebar-hover: #b2e4e2;
+  --color-sidebar-activo: #3aafa9;
 }
 
 * {
@@ -23,9 +23,6 @@ body {
   color: var(--color-texto);
 }
 
-/* =========================================
-   LAYOUT PRINCIPAL
-========================================= */
 .main-layout {
   display: flex;
   flex-direction: column;
@@ -33,19 +30,33 @@ body {
 }
 
 header {
-  background-color: var(--color-principal);
-  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--color-principal), var(--color-secundario));
+  padding: 0.85rem 2rem;
   color: white;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.header-logo {
+  font-size: 1.4rem;
+  background-color: rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: 0.25rem 0.4rem;
 }
 
 header h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: white;
 }
 
 .layout-body {
@@ -54,52 +65,75 @@ header h1 {
   padding-bottom: 50px;
 }
 
-/* =========================================
-   SIDEBAR
-========================================= */
+
 aside.sidebar {
-  width: 230px;
-  min-width: 230px;
+  width: 240px;
+  min-width: 240px;
   background-color: var(--color-sidebar);
-  border-right: 1px solid #c8e8e6;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 1.5rem 1rem;
+  padding: 1.5rem 0.8rem;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.25);
 }
 
 .sidebar-titulo {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: var(--color-secundario);
-  letter-spacing: 1.5px;
-  margin-bottom: 0.8rem;
-  padding-left: 0.5rem;
+  letter-spacing: 2px;
+  margin-bottom: 0.6rem;
+  padding-left: 0.8rem;
+  text-transform: uppercase;
 }
 
-aside.sidebar ul { list-style: none; padding: 0; }
-aside.sidebar li { margin-bottom: 0.3rem; }
+aside.sidebar ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
 
-aside.sidebar a {
+.sidebar-link {
   text-decoration: none;
   color: var(--color-texto);
   font-weight: 500;
-  font-size: 0.9rem;
-  display: block;
-  padding: 0.55rem 0.8rem;
-  border-radius: 8px;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 10px;
   transition: background 0.2s, color 0.2s;
 }
 
-aside.sidebar a:hover {
-  background-color: var(--color-hover);
+.sidebar-link:hover {
+  background-color: var(--color-sidebar-hover);
   color: var(--color-secundario);
 }
+
+.sidebar-link.activo {
+  background-color: var(--color-sidebar-activo);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(58,175,169,0.4);
+}
+
+.sidebar-icono {
+  font-size: 1rem;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
 
 .sidebar-bottom {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 1rem;
 }
 
 .usuario-card {
@@ -108,9 +142,10 @@ aside.sidebar a:hover {
   gap: 0.7rem;
   background-color: var(--color-secundario);
   border-radius: 10px;
-  padding: 0.8rem;
+  padding: 0.75rem 0.8rem;
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .usuario-card:hover {
@@ -119,32 +154,38 @@ aside.sidebar a:hover {
 }
 
 .usuario-avatar {
-  background-color: var(--color-principal);
+  background: linear-gradient(135deg, var(--color-principal), var(--color-secundario));
   color: white;
   font-weight: 700;
-  font-size: 1.1rem;
-  width: 38px;
-  height: 38px;
+  font-size: 1rem;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 2px solid rgba(255,255,255,0.4);
 }
 
-.usuario-info { display: flex; flex-direction: column; overflow: hidden; }
+.usuario-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
 .usuario-nombre {
   color: white;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.usuario-rol { color: rgba(255,255,255,0.75); font-size: 0.72rem; }
+.usuario-rol {
+  color: rgba(255,255,255,0.45);
+  font-size: 0.7rem;
+}
 
 .btn-cerrar-sesion {
   width: 100%;
@@ -152,41 +193,42 @@ aside.sidebar a:hover {
   color: var(--color-secundario);
   border: 2px solid var(--color-secundario);
   border-radius: 8px;
-  padding: 0.55rem 1rem;
-  font-size: 0.85rem;
-  font-weight: 600;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 500;
   cursor: pointer;
   font-family: 'Poppins', sans-serif;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  text-align: center;
 }
 
 .btn-cerrar-sesion:hover {
-  background-color: var(--color-secundario);
-  color: white;
+  background-color: rgba(220,53,69,0.15);
+  color: #ff8080;
+  border-color: rgba(220,53,69,0.3);
 }
 
+
 .rol-badge {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   padding: 0.25rem 0.7rem;
   border-radius: 20px;
 }
 
 .rol-badge--admin {
-  background-color: rgba(255,255,255,0.25);
+  background-color: rgba(255,255,255,0.2);
   color: white;
-  border: 1px solid rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.4);
 }
 
 .rol-badge--usuario {
-  background-color: rgba(255,255,255,0.15);
+  background-color: rgba(255,255,255,0.1);
   color: white;
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1px solid rgba(255,255,255,0.25);
 }
 
-/* =========================================
-   MAIN CONTENT
-========================================= */
+
 main {
   flex: 1;
   padding: 2rem;
@@ -197,30 +239,26 @@ main {
 .content-container {
   background-color: var(--color-blanco);
   padding: 1.8rem;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   flex: 1;
 }
 
-/* =========================================
-   FOOTER
-========================================= */
+
 footer {
   background-color: var(--color-secundario);
   padding: 0.8rem;
   color: white;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   position: fixed;
   bottom: 0;
   width: 100%;
   text-align: center;
   z-index: 100;
-  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  border-top: 1px solid rgba(255,255,255,0.06);
 }
 
-/* =========================================
-   TABLAS COMPARTIDAS
-========================================= */
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -249,9 +287,7 @@ td {
 tr:last-child td { border-bottom: none; }
 tr:hover td { background-color: var(--color-hover); transition: background 0.2s; }
 
-/* =========================================
-   INPUTS, SELECTS Y BOTONES COMPARTIDOS
-========================================= */
+
 input[type="text"],
 input[type="date"],
 input[type="password"],
@@ -287,9 +323,7 @@ button {
 
 button:hover { background-color: var(--color-secundario); }
 
-/* =========================================
-   STATS CARDS COMPARTIDAS
-========================================= */
+
 .stats-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
 
 .stats-card {
@@ -302,7 +336,7 @@ button:hover { background-color: var(--color-secundario); }
 }
 
 .stats-card h3 {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--color-secundario);
   text-transform: uppercase;
@@ -316,23 +350,19 @@ button:hover { background-color: var(--color-secundario); }
 .stats-card--min { border-left-color: #52b788; }
 .stats-card--top { border-left-color: #f4a261; }
 
-/* =========================================
-   BOTONES DE ACCIÓN COMPARTIDOS
-========================================= */
+
 .acciones-col { display: flex; gap: 0.35rem; flex-wrap: wrap; }
 .acciones-col button { min-width: 75px; }
 
 .btn-editar {
-  background: #2b7a78 !important;
-  color: white !important;
+  background: #2b7a78 !important; color: white !important;
   border: none; border-radius: 6px;
   padding: 0.45rem 0.7rem; font-size: 0.82rem; cursor: pointer;
 }
 .btn-editar:hover { background: #1f5c5a !important; }
 
 .btn-eliminar-gasto {
-  background: #d64550 !important;
-  color: white !important;
+  background: #d64550 !important; color: white !important;
   border: none; border-radius: 6px;
   padding: 0.45rem 0.7rem; font-size: 0.82rem; cursor: pointer;
 }
@@ -348,6 +378,18 @@ button:hover { background-color: var(--color-secundario); }
   background: #7a7a7a !important; color: white !important;
   border: none; border-radius: 6px;
   padding: 0.45rem 0.7rem; font-size: 0.82rem; cursor: pointer;
+}
+
+.btn-agregar { width: 140px; display: inline-block; font-weight: 700; }
+
+.btn-eliminar-recordatorio {
+  background: none !important; border: none;
+  color: #ccc; cursor: pointer; font-size: 1rem;
+  padding: 0.2rem 0.4rem; border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+.btn-eliminar-recordatorio:hover {
+  color: #e05252 !important; background-color: #fff0f0 !important;
 }
 
 .btn-suspender {

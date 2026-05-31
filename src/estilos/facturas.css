@@ -1,6 +1,3 @@
-/* =========================================
-   FACTURAS
-========================================= */
 .facturas-page h2 {
   margin-bottom: 0.3rem;
   font-size: 1.7rem;
@@ -19,7 +16,7 @@
   align-items: start;
 }
 
-/* ── Formulario ── */
+
 .facturas-formulario {
   background-color: #f7fdfd;
   border: 1px solid #d3edec;
@@ -53,7 +50,7 @@
   margin-top: 0.2rem;
 }
 
-/* ── IGV en tiempo real ── */
+
 .igv-preview {
   background-color: #e8faf5;
   border: 1px solid #b2e4e2;
@@ -80,11 +77,11 @@
   color: var(--color-secundario);
 }
 
-/* ── Tabla ── */
+
 .facturas-tabla-contenedor { display: flex; flex-direction: column; }
 .facturas-tabla-contenedor h3 { margin-bottom: 1rem; }
 
-/* ── Badges de estado ── */
+
 .factura-badge {
   display: inline-block;
   padding: 0.25rem 0.6rem;
@@ -112,11 +109,11 @@
   text-decoration: line-through;
 }
 
-/* ── Tabla de facturas ── */
+
 .facturas-tabla-contenedor { display: flex; flex-direction: column; }
 .facturas-tabla-contenedor h3 { margin-bottom: 1rem; }
 
-/* ── Gestor de categorías (mismo estilo que gastos) ── */
+
 .gestor-categorias {
   margin-top: 1rem;
   border-top: 1px solid #d3edec;
@@ -162,13 +159,13 @@
 }
 .gestor-tag-eliminar:hover { color: #e05252 !important; background: none !important; }
 
-/* ── Tabla scroll aumentada para facturas ── */
+
 .facturas-tabla-contenedor .tabla-scroll {
   height: 680px;
   max-height: 680px;
 }
 
-/* ── Asegurar que los botones de acciones no se vean recortados ── */
+
 .facturas-tabla-contenedor table td:last-child {
   min-width: 220px;
 }

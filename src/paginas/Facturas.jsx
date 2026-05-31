@@ -20,7 +20,7 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
   const [errorCategoria, setErrorCategoria] = useState('');
   const [mostrarGestor, setMostrarGestor]   = useState(false);
 
-  // ── Gestor de categorías ──
+
   const agregarCategoria = () => {
     const valor = nuevaCategoria.trim();
     if (valor === '') { setErrorCategoria('Ingresa un nombre.'); return; }
@@ -37,7 +37,7 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
     if (form.categoria === cat) setForm({ ...form, categoria: '' });
   };
 
-  // ── IGV en tiempo real ──
+
   const subtotalNum     = parseFloat(form.subtotal) || 0;
   const igvCalc         = (subtotalNum * 0.18).toFixed(2);
   const totalCalc       = (subtotalNum * 1.18).toFixed(2);
@@ -45,7 +45,7 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
   const igvEdit         = (subtotalEditNum * 0.18).toFixed(2);
   const totalEdit       = (subtotalEditNum * 1.18).toFixed(2);
 
-  // ── Validar ──
+
   const validar = (datos) => {
     const e = {};
     if (!datos.cliente.trim())     e.cliente     = 'El cliente es obligatorio.';
@@ -57,7 +57,7 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
     return e;
   };
 
-  // ── Agregar ──
+
   const agregarFactura = () => {
     const e = validar(form);
     if (Object.keys(e).length > 0) { setErrores(e); return; }
@@ -79,7 +79,7 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
     setErrores({});
   };
 
-  // ── Edición ──
+
   const iniciarEdicion  = (f) => { setEditId(f.id); setEditForm({ ...f, subtotal: f.subtotal.toString() }); };
   const cancelarEdicion = () => { setEditId(null); setEditForm({}); };
 
@@ -100,7 +100,7 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
 
   const eliminarFactura = (id) => setFacturas(facturas.filter(f => f.id !== id));
 
-  // ── Resumen ──
+
   const totalFacturado = facturas.reduce((acc, f) => acc + f.total, 0);
   const totalCobrado   = facturas.filter(f => f.estado === 'Pagada').reduce((acc, f) => acc + f.total, 0);
   const totalPendiente = facturas.filter(f => f.estado === 'Emitida').reduce((acc, f) => acc + f.total, 0);

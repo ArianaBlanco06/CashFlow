@@ -1,15 +1,14 @@
-/* =========================================
-   LOGIN — Layout dividido
-========================================= */
+
 .login-fondo {
   min-height: 100vh;
   display: flex;
   background-color: #0f1923;
 }
 
-/* ── Lado izquierdo — branding ── */
+
 .login-izq {
   flex: 1;
+  min-width: 0;
   background: linear-gradient(160deg, #0d2137 0%, #0f2d2b 50%, #0d1f1e 100%);
   padding: 3rem 4rem;
   display: flex;
@@ -20,7 +19,7 @@
   overflow: hidden;
 }
 
-/* Efecto decorativo de fondo */
+
 .login-izq::before {
   content: '';
   position: absolute;
@@ -110,10 +109,10 @@
   text-align: center;
 }
 
-/* ── Lado derecho — formulario ── */
+
 .login-der {
-  width: 480px;
-  min-width: 480px;
+  width: 420px;
+  min-width: 420px;
   background-color: #16202c;
   display: flex;
   align-items: center;
@@ -123,7 +122,7 @@
 
 .login-card {
   width: 100%;
-  max-width: 380px;
+  max-width: 360px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -146,7 +145,7 @@
   color: rgba(255,255,255,0.5);
 }
 
-/* ── Campos ── */
+
 .login-campo {
   display: flex;
   flex-direction: column;
@@ -174,15 +173,16 @@
   box-sizing: border-box;
 }
 
+
 .login-campo input::placeholder { color: rgba(255,255,255,0.3); }
 
 .login-campo input:focus {
   border-color: #3aafa9;
   box-shadow: 0 0 0 3px rgba(58,175,169,0.2);
-  background-color: rgba(255,255,255,0.08);
+  background-color: rgba(255,255,255,0.06);
 }
 
-/* ── Input con ojo ── */
+
 .login-input-wrapper {
   position: relative;
 }
@@ -211,7 +211,7 @@
   color: rgba(255,255,255,0.8) !important;
 }
 
-/* ── Error ── */
+
 .login-campo-error {
   color: #f87171;
   font-size: 0.78rem;
@@ -227,7 +227,7 @@
   border-left: 3px solid #ef4444;
 }
 
-/* ── Botón principal ── */
+
 .login-btn {
   background: linear-gradient(135deg, #3aafa9, #2b7a78);
   color: white;
@@ -245,7 +245,7 @@
 
 .login-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-/* ── Switch registro/login ── */
+
 .login-switch {
   text-align: center;
   font-size: 0.85rem;
@@ -262,7 +262,7 @@
 
 .login-link:hover { color: #5dcdc8; }
 
-/* ── Hint de credenciales ── */
+
 .login-hint {
   background-color: rgba(255,255,255,0.05);
   border: 1px dashed rgba(58,175,169,0.3);
@@ -277,7 +277,7 @@
 .login-hint p { margin: 0; }
 .login-hint strong { color: rgba(255,255,255,0.65); }
 
-/* ── Fortaleza de contraseña ── */
+
 .fuerza-contenedor {
   display: flex;
   align-items: center;
@@ -301,8 +301,11 @@
 .fuerza-texto.fuerza-media  { color: #f59e0b; }
 .fuerza-texto.fuerza-fuerte { color: #22c55e; }
 
-/* ── Responsive ── */
-@media (max-width: 900px) {
-  .login-izq { display: none; }
-  .login-der { width: 100%; min-width: unset; background: #0f1923; }
+.login-campo input:-webkit-autofill,
+.login-campo input:-webkit-autofill:hover,
+.login-campo input:-webkit-autofill:focus {
+  -webkit-text-fill-color: white;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(22, 32, 44, 0.95) inset;
+  transition: background-color 10000s ease-in-out 0s;
 }
+

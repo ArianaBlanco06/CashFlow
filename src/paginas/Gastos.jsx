@@ -11,12 +11,12 @@ const Gastos = ({ expenses, setExpenses, categorias, setCategorias }) => {
   const [editForm, setEditForm] = useState({});
   const [error, setError]       = useState('');
 
-  // ── Estado para nueva categoría ──
+
   const [nuevaCategoria, setNuevaCategoria]   = useState('');
   const [errorCategoria, setErrorCategoria]   = useState('');
   const [mostrarGestor, setMostrarGestor]     = useState(false);
 
-  // ── Gestor de categorías ──
+
   const agregarCategoria = () => {
     const valor = nuevaCategoria.trim();
     if (valor === '') { setErrorCategoria('Ingresa un nombre.'); return; }
@@ -31,11 +31,11 @@ const Gastos = ({ expenses, setExpenses, categorias, setCategorias }) => {
 
   const eliminarCategoria = (cat) => {
     setCategorias(categorias.filter(c => c !== cat));
-    // Si el form tenía esa categoría, limpiarla
+
     if (form.categoria === cat) setForm({ ...form, categoria: '' });
   };
 
-  // ── Validación ──
+
   const validarGasto = (datos) => {
     const descripcion = datos.descripcion.trim();
     const montoTexto  = typeof datos.monto === 'string' ? datos.monto.trim() : String(datos.monto);

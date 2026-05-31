@@ -13,7 +13,7 @@ const Reportes = ({ expenses, metaMensual }) => {
   if (porcentajeMeta >= 60 && porcentajeMeta < 90) colorMeta = '#f4a261';
   if (porcentajeMeta >= 90) colorMeta = '#e05252';
 
-  // ── Guard: sin gastos ──
+
   if (expenses.length === 0) {
     return (
       <div>
@@ -55,13 +55,13 @@ const Reportes = ({ expenses, metaMensual }) => {
     );
   }
 
-  // ── Cálculos generales ──
+
   const cantidadGastos = expenses.length;
   const promedioGasto  = (totalGastos / cantidadGastos).toFixed(2);
   const gastoMaximo    = expenses.reduce((max, e) => e.monto > max.monto ? e : max, expenses[0]);
   const gastoMinimo    = expenses.reduce((min, e) => e.monto < min.monto ? e : min, expenses[0]);
 
-  // ── Por categoría ──
+ 
   const porCategoria = expenses.reduce((acc, e) => {
     if (!acc[e.categoria]) acc[e.categoria] = { total: 0, cantidad: 0 };
     acc[e.categoria].total    += e.monto;

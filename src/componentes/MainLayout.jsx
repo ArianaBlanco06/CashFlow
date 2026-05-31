@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const menuAdmin = [
   { ruta: '/dashboard',      icono: '📊', label: 'Dashboard' },
@@ -18,17 +18,17 @@ const menuUsuario = [
 
 const MainLayout = ({ children, usuario = 'Usuario', rol = 'usuario', onLogout }) => {
   const navigate  = useNavigate();
+  const location  = useLocation();
   const menuItems = rol === 'admin' ? menuAdmin : menuUsuario;
-
-  const handleLogout = () => {
-    onLogout();
-  };
 
   return (
     <div className="main-layout">
 
       <header>
-        <h1>💰 Gestor de Gastos</h1>
+        <div className="header-brand">
+          <span className="header-logo">💰</span>
+          <h1>CashFlow</h1>
+        </div>
         <span className={`rol-badge ${rol === 'admin' ? 'rol-badge--admin' : 'rol-badge--usuario'}`}>
           {rol === 'admin' ? '🛡 Administrador' : '👤 Usuario'}
         </span>
@@ -42,7 +42,13 @@ const MainLayout = ({ children, usuario = 'Usuario', rol = 'usuario', onLogout }
             <ul>
               {menuItems.map(item => (
                 <li key={item.ruta}>
-                  <Link to={item.ruta}>{item.icono} {item.label}</Link>
+                  <Link
+                    to={item.ruta}
+                    className={location.pathname === item.ruta ? 'sidebar-link activo' : 'sidebar-link'}
+                  >
+                    <span className="sidebar-icono">{item.icono}</span>
+                    <span>{item.label}</span>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -63,7 +69,7 @@ const MainLayout = ({ children, usuario = 'Usuario', rol = 'usuario', onLogout }
               </div>
             </div>
 
-            <button className="btn-cerrar-sesion" onClick={handleLogout}>
+            <button className="btn-cerrar-sesion" onClick={onLogout}>
               🚪 Cerrar sesión
             </button>
           </div>
