@@ -7,10 +7,24 @@ const ReporteFiltros = ({ expenses }) => {
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
 
-  const [recordatorios, setRecordatorios] = useState([
-    { id: 1, descripcion: 'Pagar internet', categoria: 'Servicios', fechaLimite: '2026-05-20', completado: false },
-    { id: 2, descripcion: 'Revisar gastos del mes', categoria: 'Educación', fechaLimite: '2026-06-01', completado: false }
-  ]);
+const [recordatorios, setRecordatorios] = useState(() => {
+  try {
+    const guardado = localStorage.getItem('recordatorios');
+    return guardado ? JSON.parse(guardado) : [
+      { id: 1, descripcion: 'Pagar internet', categoria: 'Servicios', fechaLimite: '2026-05-20', completado: false },
+      { id: 2, descripcion: 'Revisar gastos del mes', categoria: 'Educación', fechaLimite: '2026-06-01', completado: false }
+    ];
+  } catch {
+    return [];
+  }
+});
+
+const guardarRecordatorios = (nuevos) => {
+  const lista = typeof nuevos === 'function' ? nuevos(recordatorios) : nuevos;
+  setRecordatorios(lista);
+  localStorage.setItem('recordatorios', JSON.stringify(lista));
+};
+
   const [nuevoDesc, setNuevoDesc] = useState('');
   const [nuevaCat, setNuevaCat] = useState('');
   const [nuevaFecha, setNuevaFecha] = useState('');
@@ -36,7 +50,7 @@ const ReporteFiltros = ({ expenses }) => {
       fechaLimite: nuevaFecha,
       completado: false
     };
-    setRecordatorios([...recordatorios, nuevo]);
+    guardarRecordatorios([...recordatorios, nuevo]);
     setNuevoDesc('');
     setNuevaCat('');
     setNuevaFecha('');
@@ -50,13 +64,13 @@ const ReporteFiltros = ({ expenses }) => {
       }
       return r;
     });
-    setRecordatorios(actualizados);
+    guardarRecordatorios(actualizados);
   };
 
 
   const eliminarRecordatorio = (id) => {
     const filtrados = recordatorios.filter(r => r.id !== id);
-    setRecordatorios(filtrados);
+    guardarRecordatorios(filtrados);
   };
 
   return (
