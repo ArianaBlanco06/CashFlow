@@ -8,9 +8,9 @@ const generarNumero = (facturas) => {
   return `F-${String(siguiente).padStart(3, '0')}`;
 };
 
-const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
+const Facturas = ({ facturas, crearFactura, actualizarFactura, eliminarFactura, categorias, clientes, crearCliente }) => {
   const [form, setForm] = useState({
-    cliente: '', ruc: '', descripcion: '', subtotal: '', categoria: '', estado: 'Emitida', fecha: ''
+    cliente: '', ruc: '', descripcion: '', subtotal: '', id_categoria: '', estado: 'Emitida', fecha: ''
   });
   const [errores, setErrores]   = useState({});
   const [editId, setEditId]     = useState(null);
@@ -20,23 +20,21 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
   const [errorCategoria, setErrorCategoria] = useState('');
   const [mostrarGestor, setMostrarGestor]   = useState(false);
 
+  const nombreCategoria = (id_categoria) => {
+    const cat = categorias.find(c => c.id_categoria === id_categoria);
+    return cat ? cat.nombre_categoria : '—';
+  };
 
-  const agregarCategoria = () => {
+  const agregarCategoria = async () => {
     const valor = nuevaCategoria.trim();
     if (valor === '') { setErrorCategoria('Ingresa un nombre.'); return; }
-    if (categorias.find(c => c.toLowerCase() === valor.toLowerCase())) {
+    if (categorias.find(c => c.nombre_categoria.toLowerCase() === valor.toLowerCase())) {
       setErrorCategoria('Esta categoría ya existe.'); return;
     }
-    setCategorias([...categorias, valor]);
     setNuevaCategoria('');
     setErrorCategoria('');
+    // La creación real de categorías se hace desde Gastos; aquí solo evitamos error si el prop no viene
   };
-
-  const eliminarCategoria = (cat) => {
-    setCategorias(categorias.filter(c => c !== cat));
-    if (form.categoria === cat) setForm({ ...form, categoria: '' });
-  };
-
 
   const subtotalNum     = parseFloat(form.subtotal) || 0;
   const igvCalc         = (subtotalNum * 0.18).toFixed(2);
@@ -44,7 +42,6 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
   const subtotalEditNum = parseFloat(editForm.subtotal) || 0;
   const igvEdit         = (subtotalEditNum * 0.18).toFixed(2);
   const totalEdit       = (subtotalEditNum * 1.18).toFixed(2);
-
 
   const validar = (datos) => {
     const e = {};
@@ -57,60 +54,82 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
     return e;
   };
 
-
-  const agregarFactura = () => {
+  const agregarFactura = async () => {
     const e = validar(form);
     if (Object.keys(e).length > 0) { setErrores(e); return; }
-    const nueva = {
-      id: Date.now(),
-      numero: generarNumero(facturas),
-      cliente: form.cliente.trim(),
-      ruc: form.ruc.trim(),
-      descripcion: form.descripcion.trim(),
-      categoria: form.categoria,
-      subtotal: subtotalNum,
-      igv: parseFloat(igvCalc),
-      total: parseFloat(totalCalc),
-      estado: form.estado,
-      fecha: form.fecha,
-    };
-    setFacturas([nueva, ...facturas]);
-    setForm({ cliente: '', ruc: '', descripcion: '', subtotal: '', categoria: '', estado: 'Emitida', fecha: '' });
-    setErrores({});
+    try {
+      // Busca si el cliente (por RUC) ya existe, si no lo crea
+      let cliente = clientes.find(c => c.ruc === form.ruc.trim());
+      if (!cliente) {
+        cliente = await crearCliente(form.ruc.trim(), form.cliente.trim());
+      }
+
+      await crearFactura({
+        numero: generarNumero(facturas),
+        descripcion: form.descripcion.trim(),
+        subtotal: subtotalNum,
+        igv: parseFloat(igvCalc),
+        total: parseFloat(totalCalc),
+        estado: form.estado,
+        fecha: form.fecha,
+        id_categoria: form.id_categoria || null,
+        id_cliente: cliente.id_cliente,
+      });
+
+      setForm({ cliente: '', ruc: '', descripcion: '', subtotal: '', id_categoria: '', estado: 'Emitida', fecha: '' });
+      setErrores({});
+    } catch (error) {
+      setErrores({ general: 'Error al guardar la factura en el servidor.' });
+    }
   };
 
-
-  const iniciarEdicion  = (f) => { setEditId(f.id); setEditForm({ ...f, subtotal: f.subtotal.toString() }); };
+  const iniciarEdicion = (f) => {
+    setEditId(f.id_factura);
+    setEditForm({
+      ...f,
+      subtotal: f.subtotal.toString(),
+      cliente: f.nombre_cliente || '',
+    });
+  };
   const cancelarEdicion = () => { setEditId(null); setEditForm({}); };
 
-  const guardarEdicion = () => {
-    const e = validar(editForm);
-    if (Object.keys(e).length > 0) { setErrores(e); return; }
-    setFacturas(facturas.map(f =>
-      f.id === editId
-        ? { ...f, cliente: editForm.cliente.trim(), ruc: editForm.ruc.trim(),
-            descripcion: editForm.descripcion.trim(), categoria: editForm.categoria,
-            subtotal: subtotalEditNum, igv: parseFloat(igvEdit),
-            total: parseFloat(totalEdit), estado: editForm.estado, fecha: editForm.fecha }
-        : f
-    ));
-    cancelarEdicion();
-    setErrores({});
+  const guardarEdicion = async () => {
+    try {
+      await actualizarFactura(editId, {
+        numero: editForm.numero,
+        descripcion: editForm.descripcion.trim(),
+        subtotal: subtotalEditNum,
+        igv: parseFloat(igvEdit),
+        total: parseFloat(totalEdit),
+        estado: editForm.estado,
+        fecha: editForm.fecha,
+        id_categoria: editForm.id_categoria || null,
+        id_cliente: editForm.id_cliente,
+      });
+      cancelarEdicion();
+      setErrores({});
+    } catch {
+      setErrores({ general: 'Error al actualizar la factura.' });
+    }
   };
 
-  const eliminarFactura = (id) => setFacturas(facturas.filter(f => f.id !== id));
+  const handleEliminarFactura = async (id) => {
+    try {
+      await eliminarFactura(id);
+    } catch {
+      setErrores({ general: 'Error al eliminar la factura.' });
+    }
+  };
 
-
-  const totalFacturado = facturas.reduce((acc, f) => acc + f.total, 0);
-  const totalCobrado   = facturas.filter(f => f.estado === 'Pagada').reduce((acc, f) => acc + f.total, 0);
-  const totalPendiente = facturas.filter(f => f.estado === 'Emitida').reduce((acc, f) => acc + f.total, 0);
+  const totalFacturado = facturas.reduce((acc, f) => acc + Number(f.total), 0);
+  const totalCobrado   = facturas.filter(f => f.estado === 'Pagada').reduce((acc, f) => acc + Number(f.total), 0);
+  const totalPendiente = facturas.filter(f => f.estado === 'Emitida').reduce((acc, f) => acc + Number(f.total), 0);
 
   return (
     <div className="facturas-page">
       <h2>🧾 Facturas</h2>
       <p className="facturas-subtitulo">Gestiona las facturas emitidas a tus clientes.</p>
 
-      {/* ── Resumen ── */}
       <div className="stats-row" style={{ marginBottom: '1.5rem' }}>
         <div className="stats-card"><h3>Total Facturado</h3><p>S/ {totalFacturado.toFixed(2)}</p></div>
         <div className="stats-card stats-card--min"><h3>✅ Cobrado</h3><p>S/ {totalCobrado.toFixed(2)}</p></div>
@@ -120,7 +139,6 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
 
       <div className="facturas-grid">
 
-        {/* ── Formulario ── */}
         <div className="facturas-formulario">
           <h3>Nueva Factura</h3>
           <p className="numero-preview">Número: <strong>{generarNumero(facturas)}</strong></p>
@@ -148,9 +166,9 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
 
           <div className="form-grupo">
             <label>Categoría</label>
-            <select value={form.categoria} onChange={e => setForm({ ...form, categoria: e.target.value })}>
+            <select value={form.id_categoria} onChange={e => setForm({ ...form, id_categoria: e.target.value })}>
               <option value="">Sin categoría</option>
-              {categorias.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+              {categorias.map(cat => <option key={cat.id_categoria} value={cat.id_categoria}>{cat.nombre_categoria}</option>)}
             </select>
           </div>
 
@@ -183,40 +201,13 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
             </select>
           </div>
 
+          {errores.general && <span className="facturas-error">{errores.general}</span>}
+
           <button onClick={agregarFactura} style={{ width: '100%', marginTop: '0.5rem' }}>
             + Emitir Factura
           </button>
-
-          {/* ── Gestor de categorías ── */}
-          <div className="gestor-categorias">
-            <button type="button" className="btn-gestor-toggle"
-              onClick={() => setMostrarGestor(!mostrarGestor)}>
-              {mostrarGestor ? '▲ Ocultar' : '⚙️ Gestionar categorías'}
-            </button>
-            {mostrarGestor && (
-              <div className="gestor-body">
-                <div className="gestor-input-fila">
-                  <input type="text" placeholder="Nueva categoría..."
-                    value={nuevaCategoria}
-                    onChange={e => { setNuevaCategoria(e.target.value); setErrorCategoria(''); }} />
-                  <button type="button" onClick={agregarCategoria}>+ Agregar</button>
-                </div>
-                {errorCategoria && <span className="facturas-error">{errorCategoria}</span>}
-                <div className="gestor-lista">
-                  {categorias.map(cat => (
-                    <div key={cat} className="gestor-tag">
-                      <span>{cat}</span>
-                      <button type="button" className="gestor-tag-eliminar"
-                        onClick={() => eliminarCategoria(cat)} title="Eliminar">✕</button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
         </div>
 
-        {/* ── Tabla ── */}
         <div className="facturas-tabla-contenedor">
           <h3>Facturas emitidas</h3>
           <div className="tabla-scroll">
@@ -230,25 +221,25 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
               </thead>
               <tbody>
                 {facturas.map(f => (
-                  <tr key={f.id} className={editId === f.id ? 'fila-editando' : ''}>
+                  <tr key={f.id_factura} className={editId === f.id_factura ? 'fila-editando' : ''}>
                     <td><strong>{f.numero}</strong></td>
-                    <td>{editId === f.id ? <input type="text" value={editForm.cliente} onChange={e => setEditForm({ ...editForm, cliente: e.target.value })} /> : f.cliente}</td>
-                    <td>{editId === f.id ? <input type="text" maxLength={11} value={editForm.ruc} onChange={e => setEditForm({ ...editForm, ruc: e.target.value.replace(/\D/g, '') })} /> : f.ruc}</td>
-                    <td>{editId === f.id ? <input type="text" value={editForm.descripcion} onChange={e => setEditForm({ ...editForm, descripcion: e.target.value })} /> : f.descripcion}</td>
+                    <td>{f.nombre_cliente || '—'}</td>
+                    <td>{f.ruc || '—'}</td>
+                    <td>{editId === f.id_factura ? <input type="text" value={editForm.descripcion} onChange={e => setEditForm({ ...editForm, descripcion: e.target.value })} /> : f.descripcion}</td>
                     <td>
-                      {editId === f.id
-                        ? <select value={editForm.categoria} onChange={e => setEditForm({ ...editForm, categoria: e.target.value })}>
+                      {editId === f.id_factura
+                        ? <select value={editForm.id_categoria || ''} onChange={e => setEditForm({ ...editForm, id_categoria: e.target.value })}>
                             <option value="">Sin categoría</option>
-                            {categorias.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                            {categorias.map(cat => <option key={cat.id_categoria} value={cat.id_categoria}>{cat.nombre_categoria}</option>)}
                           </select>
-                        : f.categoria || '—'}
+                        : nombreCategoria(f.id_categoria)}
                     </td>
-                    <td>{editId === f.id ? <input type="text" value={editForm.subtotal} onChange={e => setEditForm({ ...editForm, subtotal: e.target.value.replace(/[^0-9.]/g, '') })} /> : `S/ ${f.subtotal.toFixed(2)}`}</td>
-                    <td>S/ {editId === f.id ? igvEdit : f.igv.toFixed(2)}</td>
-                    <td><strong>S/ {editId === f.id ? totalEdit : f.total.toFixed(2)}</strong></td>
-                    <td>{editId === f.id ? <input type="date" value={editForm.fecha} onChange={e => setEditForm({ ...editForm, fecha: e.target.value })} /> : f.fecha}</td>
+                    <td>{editId === f.id_factura ? <input type="text" value={editForm.subtotal} onChange={e => setEditForm({ ...editForm, subtotal: e.target.value.replace(/[^0-9.]/g, '') })} /> : `S/ ${Number(f.subtotal).toFixed(2)}`}</td>
+                    <td>S/ {editId === f.id_factura ? igvEdit : Number(f.igv).toFixed(2)}</td>
+                    <td><strong>S/ {editId === f.id_factura ? totalEdit : Number(f.total).toFixed(2)}</strong></td>
+                    <td>{editId === f.id_factura ? <input type="date" value={editForm.fecha?.slice(0,10)} onChange={e => setEditForm({ ...editForm, fecha: e.target.value })} /> : String(f.fecha).slice(0,10)}</td>
                     <td>
-                      {editId === f.id
+                      {editId === f.id_factura
                         ? <select value={editForm.estado} onChange={e => setEditForm({ ...editForm, estado: e.target.value })}>
                             {estadosDisponibles.map(est => <option key={est} value={est}>{est}</option>)}
                           </select>
@@ -256,12 +247,12 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
                     </td>
                     <td>
                       <div className="acciones-col">
-                        {editId === f.id ? (
+                        {editId === f.id_factura ? (
                           <><button className="btn-guardar" onClick={guardarEdicion}>Guardar</button>
                           <button className="btn-cancelar" onClick={cancelarEdicion}>Cancelar</button></>
                         ) : (
                           <><button className="btn-editar" onClick={() => iniciarEdicion(f)}>Editar</button>
-                          <button className="btn-eliminar-gasto" onClick={() => eliminarFactura(f.id)}>Eliminar</button></>
+                          <button className="btn-eliminar-gasto" onClick={() => handleEliminarFactura(f.id_factura)}>Eliminar</button></>
                         )}
                       </div>
                     </td>
@@ -280,4 +271,3 @@ const Facturas = ({ facturas, setFacturas, categorias, setCategorias }) => {
 };
 
 export default Facturas;
-

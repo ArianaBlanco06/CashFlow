@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import '../estilos/perfil.css';
 
-const Perfil = ({ usuario, setUsuarios, usuarios }) => {
+const Perfil = ({ usuario, actualizarUsuario, setUsuarioActivo }) => {
   const [nombre, setNombre]   = useState(usuario.nombre);
   const [correo, setCorreo]   = useState(usuario.correo || '');
   const [clave, setClave]     = useState('');
@@ -9,7 +9,7 @@ const Perfil = ({ usuario, setUsuarios, usuarios }) => {
   const [mensaje, setMensaje] = useState('');
   const [error, setError]     = useState('');
 
-  const guardar = () => {
+  const guardar = async () => {
     setMensaje('');
     setError('');
 
@@ -26,23 +26,26 @@ const Perfil = ({ usuario, setUsuarios, usuarios }) => {
       return;
     }
 
- 
-    const actualizados = usuarios.map(u => {
-      if (u.id === usuario.id) {
-        return {
-          ...u,
-          nombre: nombre.trim(),
-          correo: correo.trim(),
-          ...(clave !== '' && { clave }),
-        };
-      }
-      return u;
-    });
+    try {
+      const actualizado = await actualizarUsuario(usuario.id, {
+        nombre: nombre.trim(),
+        correo: correo.trim(),
+        rol: usuario.rol,
+        estado: usuario.estado || 'activo',
+        ...(clave !== '' && { clave }),
+      });
 
-    setUsuarios(actualizados);
-    setClave('');
-    setConfirm('');
-    setMensaje('✅ Cambios guardados correctamente.');
+      // Actualiza también el usuario activo en la sesión (nombre en el menú, etc.)
+      const nuevoUsuarioActivo = { ...usuario, nombre: nombre.trim(), correo: correo.trim() };
+      localStorage.setItem('usuarioActivo', JSON.stringify(nuevoUsuarioActivo));
+      setUsuarioActivo(nuevoUsuarioActivo);
+
+      setClave('');
+      setConfirm('');
+      setMensaje('✅ Cambios guardados correctamente.');
+    } catch (err) {
+      setError('Error al guardar los cambios en el servidor.');
+    }
   };
 
   return (
@@ -54,7 +57,6 @@ const Perfil = ({ usuario, setUsuarios, usuarios }) => {
 
       <div className="perfil-card">
 
-        {/* Avatar */}
         <div className="perfil-avatar-grande">
           {nombre.charAt(0).toUpperCase()}
         </div>

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import '../estilos/usuarios.css';
 
-
 const formatearAcceso = (fecha) => {
   if (!fecha) return <span className="acceso-nunca">Nunca</span>;
 
@@ -26,43 +25,55 @@ const formatearAcceso = (fecha) => {
   );
 };
 
-const Usuarios = ({ usuarios, setUsuarios }) => {
+const Usuarios = ({ usuarios, crearUsuario, actualizarUsuario, eliminarUsuario }) => {
   const [busqueda, setBusqueda]   = useState('');
   const [form, setForm]           = useState({ nombre: '', usuario: '', clave: '', rol: 'usuario' });
   const [formError, setFormError] = useState({});
 
-
   const totalAdmins      = usuarios.filter(u => u.rol === 'admin').length;
   const totalUsuarios    = usuarios.filter(u => u.rol === 'usuario').length;
   const totalSuspendidos = usuarios.filter(u => u.estado === 'suspendido').length;
-
 
   const usuariosFiltrados = usuarios.filter(u =>
     u.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
     u.usuario.toLowerCase().includes(busqueda.toLowerCase())
   );
 
-
-  const toggleRol = (id) => {
-    setUsuarios(usuarios.map(u =>
-      u.id === id ? { ...u, rol: u.rol === 'admin' ? 'usuario' : 'admin' } : u
-    ));
+  const toggleRol = async (u) => {
+    try {
+      await actualizarUsuario(u.id_usuario, {
+        nombre: u.nombre,
+        correo: u.correo,
+        rol: u.rol === 'admin' ? 'usuario' : 'admin',
+        estado: u.estado,
+      });
+    } catch {
+      alert('Error al cambiar el rol del usuario.');
+    }
   };
 
-
-  const toggleEstado = (id) => {
-    setUsuarios(usuarios.map(u =>
-      u.id === id ? { ...u, estado: u.estado === 'activo' ? 'suspendido' : 'activo' } : u
-    ));
+  const toggleEstado = async (u) => {
+    try {
+      await actualizarUsuario(u.id_usuario, {
+        nombre: u.nombre,
+        correo: u.correo,
+        rol: u.rol,
+        estado: u.estado === 'activo' ? 'suspendido' : 'activo',
+      });
+    } catch {
+      alert('Error al cambiar el estado del usuario.');
+    }
   };
 
-
-  const eliminarUsuario = (id) => {
-    setUsuarios(usuarios.filter(u => u.id !== id));
+  const handleEliminarUsuario = async (id) => {
+    try {
+      await eliminarUsuario(id);
+    } catch {
+      alert('Error al eliminar el usuario.');
+    }
   };
 
-
-  const agregarUsuario = () => {
+  const agregarUsuario = async () => {
     const errores = {};
     if (form.nombre.trim() === '')  errores.nombre  = 'El nombre es obligatorio.';
     if (form.usuario.trim() === '') errores.usuario = 'El usuario es obligatorio.';
@@ -71,19 +82,17 @@ const Usuarios = ({ usuarios, setUsuarios }) => {
 
     if (Object.keys(errores).length > 0) { setFormError(errores); return; }
 
-    const nuevo = {
-      id: usuarios.length + 1,
-      nombre: form.nombre.trim(),
-      usuario: form.usuario.trim(),
-      clave: form.clave,
-      rol: form.rol,
-      estado: 'activo',
-      ultimoAcceso: null,
-    };
-
-    setUsuarios([...usuarios, nuevo]);
-    setForm({ nombre: '', usuario: '', clave: '', rol: 'usuario' });
-    setFormError({});
+    try {
+      await crearUsuario(form.nombre.trim(), form.usuario.trim(), form.clave, form.rol);
+      setForm({ nombre: '', usuario: '', clave: '', rol: 'usuario' });
+      setFormError({});
+    } catch (error) {
+      if (error.response?.status === 409) {
+        setFormError({ usuario: 'Este usuario ya existe.' });
+      } else {
+        setFormError({ nombre: 'Error al crear el usuario.' });
+      }
+    }
   };
 
   return (
@@ -93,7 +102,6 @@ const Usuarios = ({ usuarios, setUsuarios }) => {
         Administra los usuarios registrados en el sistema.
       </p>
 
-      {/* ── Contadores ── */}
       <div className="stats-row" style={{ marginBottom: '1.5rem' }}>
         <div className="stats-card">
           <h3>Total Usuarios</h3>
@@ -115,7 +123,6 @@ const Usuarios = ({ usuarios, setUsuarios }) => {
 
       <div className="usuarios-grid">
 
-        {/* ── Formulario ── */}
         <div className="usuarios-formulario">
           <h3>Agregar usuario</h3>
 
@@ -153,7 +160,6 @@ const Usuarios = ({ usuarios, setUsuarios }) => {
           </button>
         </div>
 
-        {/* ── Tabla ── */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
             <h3>Usuarios registrados</h3>
@@ -179,7 +185,7 @@ const Usuarios = ({ usuarios, setUsuarios }) => {
             </thead>
             <tbody>
               {usuariosFiltrados.map(u => (
-                <tr key={u.id} className={u.estado === 'suspendido' ? 'fila-suspendida' : ''}>
+                <tr key={u.id_usuario} className={u.estado === 'suspendido' ? 'fila-suspendida' : ''}>
                   <td><strong>{u.nombre}</strong></td>
                   <td style={{ color: '#888', fontSize: '0.85rem' }}>@{u.usuario}</td>
                   <td>
@@ -192,19 +198,19 @@ const Usuarios = ({ usuarios, setUsuarios }) => {
                       {u.estado === 'activo' ? '✅ Activo' : '🚫 Suspendido'}
                     </span>
                   </td>
-                  <td>{formatearAcceso(u.ultimoAcceso)}</td>
+                  <td>{formatearAcceso(u.ultimo_acceso)}</td>
                   <td>
                     <div className="acciones-col">
-                      <button className="btn-editar" onClick={() => toggleRol(u.id)}
+                      <button className="btn-editar" onClick={() => toggleRol(u)}
                         title={`Cambiar a ${u.rol === 'admin' ? 'Usuario' : 'Admin'}`}>
                         {u.rol === 'admin' ? '→ Usuario' : '→ Admin'}
                       </button>
                       <button
                         className={u.estado === 'activo' ? 'btn-suspender' : 'btn-activar'}
-                        onClick={() => toggleEstado(u.id)}>
+                        onClick={() => toggleEstado(u)}>
                         {u.estado === 'activo' ? 'Suspender' : 'Activar'}
                       </button>
-                      <button className="btn-eliminar-gasto" onClick={() => eliminarUsuario(u.id)}>
+                      <button className="btn-eliminar-gasto" onClick={() => handleEliminarUsuario(u.id_usuario)}>
                         Eliminar
                       </button>
                     </div>

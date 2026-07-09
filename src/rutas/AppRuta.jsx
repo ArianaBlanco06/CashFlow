@@ -30,6 +30,7 @@ const AppRuta = () => {
   const [usuarios, setUsuarios]     = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [facturas, setFacturas]     = useState([]);
+  const [clientes, setClientes]     = useState([]);
   const [expenses, setExpenses]     = useState([]);
   const [metaMensual, setMetaMensual] = useState(500);
 
@@ -48,6 +49,10 @@ const AppRuta = () => {
     axios.get(`${API_URL}/facturas?id_usuario=${usuarioActivo.id}`)
       .then(res => setFacturas(res.data))
       .catch(err => console.error('Error al cargar facturas:', err));
+
+    axios.get(`${API_URL}/clientes`)
+      .then(res => setClientes(res.data))
+      .catch(err => console.error('Error al cargar clientes:', err));
 
     if (usuarioActivo.rol === 'admin') {
       axios.get(`${API_URL}/usuarios`)
@@ -106,6 +111,46 @@ const AppRuta = () => {
     setFacturas(prev => [data, ...prev]);
   };
 
+  const actualizarFactura = async (id, cambios) => {
+    const { data } = await axios.put(`${API_URL}/facturas/${id}`, cambios);
+    setFacturas(prev => prev.map(f => (f.id_factura === id ? data : f)));
+  };
+
+  const eliminarFactura = async (id) => {
+    await axios.delete(`${API_URL}/facturas/${id}`);
+    setFacturas(prev => prev.filter(f => f.id_factura !== id));
+  };
+
+  // --- Clientes ---
+  const crearCliente = async (ruc, nombre_cliente) => {
+    const { data } = await axios.post(`${API_URL}/clientes`, { ruc, nombre_cliente });
+    setClientes(prev => [...prev, data]);
+    return data;
+  };
+
+  // --- Usuarios (gestión) ---
+  const crearUsuario = async (nombre, usuario, clave, rol) => {
+    const { data } = await axios.post(`${API_URL}/usuarios/registro`, { nombre, usuario, clave });
+    if (rol === 'admin') {
+      const actualizado = await axios.put(`${API_URL}/usuarios/${data.id_usuario}`, {
+        nombre: data.nombre, correo: data.correo, rol: 'admin', estado: data.estado,
+      });
+      setUsuarios(prev => [...prev, actualizado.data]);
+    } else {
+      setUsuarios(prev => [...prev, data]);
+    }
+  };
+
+  const actualizarUsuario = async (id, cambios) => {
+    const { data } = await axios.put(`${API_URL}/usuarios/${id}`, cambios);
+    setUsuarios(prev => prev.map(u => (u.id_usuario === id ? data : u)));
+  };
+
+  const eliminarUsuario = async (id) => {
+    await axios.delete(`${API_URL}/usuarios/${id}`);
+    setUsuarios(prev => prev.filter(u => u.id_usuario !== id));
+  };
+
   if (!usuarioActivo) {
     return <Login onLogin={handleLogin} />;
   }
@@ -141,18 +186,33 @@ const AppRuta = () => {
           <Route path="/reportes" element={
             <Reportes expenses={expenses} metaMensual={metaMensual} categorias={categorias} />
           } />
-          <Route path="/reporteFiltros" element={<ReporteFiltros expenses={expenses} categorias={categorias} />} />
+          <Route path="/reporteFiltros" element={
+            <ReporteFiltros expenses={expenses} categorias={categorias} />
+          } />
           <Route path="/perfil" element={
-            <Perfil usuario={usuarioActivo} />
+            <Perfil usuario={usuarioActivo} actualizarUsuario={actualizarUsuario} setUsuarioActivo={setUsuarioActivo} />
           } />
           <Route path="/invoices" element={
             usuarioActivo.rol === 'admin'
-              ? <Facturas facturas={facturas} crearFactura={crearFactura} categorias={categorias} />
+              ? <Facturas
+                  facturas={facturas}
+                  crearFactura={crearFactura}
+                  actualizarFactura={actualizarFactura}
+                  eliminarFactura={eliminarFactura}
+                  categorias={categorias}
+                  clientes={clientes}
+                  crearCliente={crearCliente}
+                />
               : <Navigate to="/dashboard" />
           } />
           <Route path="/admin/users" element={
             usuarioActivo.rol === 'admin'
-              ? <Usuarios usuarios={usuarios} />
+              ? <Usuarios
+                  usuarios={usuarios}
+                  crearUsuario={crearUsuario}
+                  actualizarUsuario={actualizarUsuario}
+                  eliminarUsuario={eliminarUsuario}
+                />
               : <Navigate to="/dashboard" />
           } />
         </Routes>
