@@ -1,5 +1,8 @@
 import { useState } from 'react';
+import axios from 'axios';
 import '../estilos/login.css';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const evaluarFortaleza = (clave) => {
   if (clave.length === 0) return null;
@@ -9,12 +12,13 @@ const evaluarFortaleza = (clave) => {
   return { nivel: 'Media', clase: 'fuerza-media' };
 };
 
-const Login = ({ onLogin, usuarios, setUsuarios }) => {
+const Login = ({ onLogin }) => {
   const [vista, setVista]           = useState('login');
   const [usuarioInput, setUsuarioInput] = useState('');
   const [claveInput, setClaveInput]     = useState('');
   const [errorLogin, setErrorLogin]     = useState('');
   const [mostrarClave, setMostrarClave] = useState(false);
+  const [cargando, setCargando]         = useState(false);
 
   const [regNombre,  setRegNombre]  = useState('');
   const [regUsuario, setRegUsuario] = useState('');
@@ -28,48 +32,60 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
 
   const fortaleza = evaluarFortaleza(regClave);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (usuarioInput.trim() === '' || claveInput.trim() === '') {
       setErrorLogin('Por favor completa todos los campos.');
       return;
     }
-    const encontrado = usuarios.find(
-      u => u.usuario === usuarioInput && u.clave === claveInput
-    );
-    if (!encontrado) { setErrorLogin('Usuario o contraseña incorrectos.'); return; }
-    if (encontrado.estado === 'suspendido') {
-      setErrorLogin('Tu cuenta está suspendida. Contacta al administrador.'); return;
-    }
+    setCargando(true);
     setErrorLogin('');
-    onLogin(encontrado);
+    try {
+      const { data } = await axios.post(`${API_URL}/usuarios/login`, {
+        usuario: usuarioInput,
+        clave: claveInput,
+      });
+      localStorage.setItem('token', data.token);
+      onLogin(data.usuario);
+    } catch (error) {
+      if (error.response?.status === 401) {
+        setErrorLogin('Usuario o contraseña incorrectos.');
+      } else {
+        setErrorLogin('Error al conectar con el servidor.');
+      }
+    } finally {
+      setCargando(false);
+    }
   };
 
-  const handleRegistro = () => {
+  const handleRegistro = async () => {
     let valido = true;
-    if (regNombre.trim() === '')  { setRegNombreError('El nombre es obligatorio.');             valido = false; } else setRegNombreError('');
-    if (regUsuario.trim() === '') { setRegUsuarioError('El usuario es obligatorio.');            valido = false; }
-    else if (usuarios.find(u => u.usuario === regUsuario.trim())) { setRegUsuarioError('Este usuario ya existe.'); valido = false; }
-    else setRegUsuarioError('');
-    if (regClave.length < 6)      { setRegClaveError('Mínimo 6 caracteres.');                   valido = false; } else setRegClaveError('');
-    if (regConfirm !== regClave)  { setRegConfirmError('Las contraseñas no coinciden.');         valido = false; } else setRegConfirmError('');
+    if (regNombre.trim() === '')  { setRegNombreError('El nombre es obligatorio.'); valido = false; } else setRegNombreError('');
+    if (regUsuario.trim() === '') { setRegUsuarioError('El usuario es obligatorio.'); valido = false; } else setRegUsuarioError('');
+    if (regClave.length < 6)      { setRegClaveError('Mínimo 6 caracteres.'); valido = false; } else setRegClaveError('');
+    if (regConfirm !== regClave)  { setRegConfirmError('Las contraseñas no coinciden.'); valido = false; } else setRegConfirmError('');
     if (!valido) return;
 
-    const nuevoUsuario = {
-      id: usuarios.length + 1,
-      nombre: regNombre.trim(),
-      usuario: regUsuario.trim(),
-      clave: regClave,
-      rol: 'usuario',
-      estado: 'activo',
-      ultimoAcceso: null,
-    };
-    setUsuarios([...usuarios, nuevoUsuario]);
-    setNombreRegistrado(regNombre.trim());
-    setRegNombre(''); setRegUsuario(''); setRegClave(''); setRegConfirm('');
-    setVista('bienvenida');
-    setTimeout(() => setVista('login'), 2500);
+    setCargando(true);
+    try {
+      await axios.post(`${API_URL}/usuarios/registro`, {
+        nombre: regNombre.trim(),
+        usuario: regUsuario.trim(),
+        clave: regClave,
+      });
+      setNombreRegistrado(regNombre.trim());
+      setRegNombre(''); setRegUsuario(''); setRegClave(''); setRegConfirm('');
+      setVista('bienvenida');
+      setTimeout(() => setVista('login'), 2500);
+    } catch (error) {
+      if (error.response?.status === 409) {
+        setRegUsuarioError('Este usuario ya existe.');
+      } else {
+        setRegUsuarioError('Error al conectar con el servidor.');
+      }
+    } finally {
+      setCargando(false);
+    }
   };
-
 
   if (vista === 'bienvenida') {
     return (
@@ -95,7 +111,6 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
       </div>
     );
   }
-
 
   if (vista === 'registro') {
     return (
@@ -157,7 +172,9 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
               {regConfirmError && <span className="login-campo-error">{regConfirmError}</span>}
             </div>
 
-            <button className="login-btn" onClick={handleRegistro}>Crear cuenta</button>
+            <button className="login-btn" onClick={handleRegistro} disabled={cargando}>
+              {cargando ? 'Creando...' : 'Crear cuenta'}
+            </button>
 
             <p className="login-switch">
               ¿Ya tienes cuenta?{' '}
@@ -169,10 +186,8 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
     );
   }
 
- 
   return (
     <div className="login-fondo">
-      {/* Lado izquierdo — branding */}
       <div className="login-izq">
         <div className="login-brand">
           <span className="login-logo">💰</span>
@@ -193,7 +208,6 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
         </div>
       </div>
 
-      {/* Lado derecho — formulario */}
       <div className="login-der">
         <div className="login-card">
           <div className="login-card-header">
@@ -233,7 +247,9 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
 
           {errorLogin && <div className="login-error">⚠ {errorLogin}</div>}
 
-          <button className="login-btn" onClick={handleLogin}>Ingresar →</button>
+          <button className="login-btn" onClick={handleLogin} disabled={cargando}>
+            {cargando ? 'Ingresando...' : 'Ingresar →'}
+          </button>
 
           <p className="login-switch">
             ¿No tienes cuenta?{' '}
@@ -241,8 +257,7 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
           </p>
 
           <div className="login-hint">
-            <p><strong>Admin:</strong> admin / 1234</p>
-            <p><strong>Usuario:</strong> juan / 1234</p>
+            <p><strong>Admin:</strong> admin / admin123</p>
           </div>
         </div>
       </div>

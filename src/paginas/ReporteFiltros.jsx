@@ -1,29 +1,29 @@
 import { useState } from 'react';
 import '../estilos/filtros.css';
 
-const ReporteFiltros = ({ expenses }) => {
+const ReporteFiltros = ({ expenses, categorias }) => {
 
   const [categoria, setCategoria] = useState('');
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
 
-const [recordatorios, setRecordatorios] = useState(() => {
-  try {
-    const guardado = localStorage.getItem('recordatorios');
-    return guardado ? JSON.parse(guardado) : [
-      { id: 1, descripcion: 'Pagar internet', categoria: 'Servicios', fechaLimite: '2026-05-20', completado: false },
-      { id: 2, descripcion: 'Revisar gastos del mes', categoria: 'Educación', fechaLimite: '2026-06-01', completado: false }
-    ];
-  } catch {
-    return [];
-  }
-});
+  const [recordatorios, setRecordatorios] = useState(() => {
+    try {
+      const guardado = localStorage.getItem('recordatorios');
+      return guardado ? JSON.parse(guardado) : [
+        { id: 1, descripcion: 'Pagar internet', categoria: 'Servicios', fechaLimite: '2026-05-20', completado: false },
+        { id: 2, descripcion: 'Revisar gastos del mes', categoria: 'Educación', fechaLimite: '2026-06-01', completado: false }
+      ];
+    } catch {
+      return [];
+    }
+  });
 
-const guardarRecordatorios = (nuevos) => {
-  const lista = typeof nuevos === 'function' ? nuevos(recordatorios) : nuevos;
-  setRecordatorios(lista);
-  localStorage.setItem('recordatorios', JSON.stringify(lista));
-};
+  const guardarRecordatorios = (nuevos) => {
+    const lista = typeof nuevos === 'function' ? nuevos(recordatorios) : nuevos;
+    setRecordatorios(lista);
+    localStorage.setItem('recordatorios', JSON.stringify(lista));
+  };
 
   const [nuevoDesc, setNuevoDesc] = useState('');
   const [nuevaCat, setNuevaCat] = useState('');
@@ -31,15 +31,19 @@ const guardarRecordatorios = (nuevos) => {
 
   const hoy = new Date().toISOString().split('T')[0];
 
+  const nombreCategoria = (id_categoria) => {
+    const cat = categorias.find(c => c.id_categoria === id_categoria);
+    return cat ? cat.nombre_categoria : '';
+  };
 
   const filtered = expenses.filter(exp => {
+    const nombreCat = nombreCategoria(exp.id_categoria).toLowerCase();
     return (
-      exp.categoria.toLowerCase().includes(categoria.toLowerCase()) &&
-      (fechaInicio === '' || exp.fecha >= fechaInicio) &&
-      (fechaFin === '' || exp.fecha <= fechaFin)
+      nombreCat.includes(categoria.toLowerCase()) &&
+      (fechaInicio === '' || String(exp.fecha).slice(0, 10) >= fechaInicio) &&
+      (fechaFin === '' || String(exp.fecha).slice(0, 10) <= fechaFin)
     );
   });
-
 
   const agregarRecordatorio = () => {
     if (nuevoDesc.trim() === '' || nuevaFecha === '') return;
@@ -56,7 +60,6 @@ const guardarRecordatorios = (nuevos) => {
     setNuevaFecha('');
   };
 
-
   const toggleCompletado = (id) => {
     const actualizados = recordatorios.map(r => {
       if (r.id === id) {
@@ -66,7 +69,6 @@ const guardarRecordatorios = (nuevos) => {
     });
     guardarRecordatorios(actualizados);
   };
-
 
   const eliminarRecordatorio = (id) => {
     const filtrados = recordatorios.filter(r => r.id !== id);
@@ -97,11 +99,11 @@ const guardarRecordatorios = (nuevos) => {
         </thead>
         <tbody>
           {filtered.map(exp => (
-            <tr key={exp.id}>
+            <tr key={exp.id_gasto}>
               <td>{exp.descripcion}</td>
-              <td>{exp.categoria}</td>
-              <td>S/ {exp.monto}</td>
-              <td>{exp.fecha}</td>
+              <td>{nombreCategoria(exp.id_categoria)}</td>
+              <td>S/ {Number(exp.monto).toFixed(2)}</td>
+              <td>{String(exp.fecha).slice(0, 10)}</td>
             </tr>
           ))}
           {filtered.length === 0 && (
@@ -112,7 +114,6 @@ const guardarRecordatorios = (nuevos) => {
         </tbody>
       </table>
 
-      {/* ════ RECORDATORIOS ════ */}
       <h3 style={{ marginTop: '2.5rem', marginBottom: '1rem' }}>🔔 Recordatorios</h3>
 
       <div className="recordatorio-form">

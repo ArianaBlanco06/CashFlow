@@ -3,38 +3,42 @@ import '../estilos/gastos.css';
 
 const estadosDisponibles = ['Pagado', 'Pendiente'];
 
-const Gastos = ({ expenses, setExpenses, categorias, setCategorias }) => {
+const Gastos = ({ expenses, crearGasto, actualizarGasto, eliminarGasto, categorias, crearCategoria, eliminarCategoria }) => {
   const [form, setForm] = useState({
-    descripcion: '', monto: '', fecha: '', categoria: '', estado: 'Pagado'
+    descripcion: '', monto: '', fecha: '', id_categoria: '', estado: 'Pagado'
   });
   const [editId, setEditId]     = useState(null);
   const [editForm, setEditForm] = useState({});
   const [error, setError]       = useState('');
 
-
   const [nuevaCategoria, setNuevaCategoria]   = useState('');
   const [errorCategoria, setErrorCategoria]   = useState('');
   const [mostrarGestor, setMostrarGestor]     = useState(false);
 
-
-  const agregarCategoria = () => {
+  const agregarCategoria = async () => {
     const valor = nuevaCategoria.trim();
     if (valor === '') { setErrorCategoria('Ingresa un nombre.'); return; }
-    if (categorias.find(c => c.toLowerCase() === valor.toLowerCase())) {
+    if (categorias.find(c => c.nombre_categoria.toLowerCase() === valor.toLowerCase())) {
       setErrorCategoria('Esta categoría ya existe.');
       return;
     }
-    setCategorias([...categorias, valor]);
-    setNuevaCategoria('');
-    setErrorCategoria('');
+    try {
+      await crearCategoria(valor);
+      setNuevaCategoria('');
+      setErrorCategoria('');
+    } catch {
+      setErrorCategoria('Error al crear la categoría.');
+    }
   };
 
-  const eliminarCategoria = (cat) => {
-    setCategorias(categorias.filter(c => c !== cat));
-
-    if (form.categoria === cat) setForm({ ...form, categoria: '' });
+  const eliminarCat = async (id_categoria) => {
+    try {
+      await eliminarCategoria(id_categoria);
+      if (form.id_categoria === id_categoria) setForm({ ...form, id_categoria: '' });
+    } catch {
+      setErrorCategoria('Error al eliminar la categoría.');
+    }
   };
-
 
   const validarGasto = (datos) => {
     const descripcion = datos.descripcion.trim();
@@ -46,7 +50,7 @@ const Gastos = ({ expenses, setExpenses, categorias, setCategorias }) => {
     if (montoTexto.length > 9)                 return 'El monto no puede tener más de 9 caracteres.';
     if (isNaN(montoValido) || montoValido <= 0) return 'Ingresa un monto válido mayor a 0.';
     if (datos.fecha === '')                    return 'Selecciona la fecha del gasto.';
-    if (datos.categoria === '')                return 'Selecciona una categoría.';
+    if (!datos.id_categoria)                   return 'Selecciona una categoría.';
     if (datos.estado === '')                   return 'Selecciona un estado.';
     return '';
   };
@@ -61,44 +65,60 @@ const Gastos = ({ expenses, setExpenses, categorias, setCategorias }) => {
     setError('');
   };
 
-  const agregarGasto = () => {
-    const nuevoGasto = {
-      id: expenses.length > 0 ? Math.max(...expenses.map(e => e.id)) + 1 : 1,
-      descripcion: form.descripcion.trim(),
-      monto: parseFloat(form.monto),
-      fecha: form.fecha,
-      categoria: form.categoria,
-      estado: form.estado,
-    };
-    const msg = validarGasto(nuevoGasto);
+  const agregarGasto = async () => {
+    const msg = validarGasto(form);
     if (msg) { setError(msg); return; }
-    setExpenses(prev => [nuevoGasto, ...prev]);
-    setForm({ descripcion: '', monto: '', fecha: '', categoria: '', estado: 'Pagado' });
+    try {
+      await crearGasto({
+        descripcion: form.descripcion.trim(),
+        monto: parseFloat(form.monto.replace(',', '.')),
+        fecha: form.fecha,
+        estado: form.estado,
+        id_categoria: form.id_categoria,
+      });
+      setForm({ descripcion: '', monto: '', fecha: '', id_categoria: '', estado: 'Pagado' });
+    } catch {
+      setError('Error al guardar el gasto en el servidor.');
+    }
   };
 
   const iniciarEdicion = (expense) => {
-    setEditId(expense.id);
+    setEditId(expense.id_gasto);
     setEditForm({ ...expense, monto: expense.monto.toString() });
     setError('');
   };
 
   const cancelarEdicion = () => { setEditId(null); setEditForm({}); setError(''); };
 
-  const guardarEdicion = () => {
+  const guardarEdicion = async () => {
     const msg = validarGasto(editForm);
     if (msg) { setError(msg); return; }
-    setExpenses(expenses.map(exp =>
-      exp.id === editId
-        ? { ...exp, descripcion: editForm.descripcion.trim(), monto: parseFloat(editForm.monto),
-            fecha: editForm.fecha, categoria: editForm.categoria, estado: editForm.estado }
-        : exp
-    ));
-    cancelarEdicion();
+    try {
+      await actualizarGasto(editId, {
+        descripcion: editForm.descripcion.trim(),
+        monto: parseFloat(String(editForm.monto).replace(',', '.')),
+        fecha: editForm.fecha,
+        estado: editForm.estado,
+        id_categoria: editForm.id_categoria,
+      });
+      cancelarEdicion();
+    } catch {
+      setError('Error al actualizar el gasto.');
+    }
   };
 
-  const eliminarGasto = (id) => {
-    setExpenses(prev => prev.filter(exp => exp.id !== id));
-    if (editId === id) cancelarEdicion();
+  const handleEliminarGasto = async (id) => {
+    try {
+      await eliminarGasto(id);
+      if (editId === id) cancelarEdicion();
+    } catch {
+      setError('Error al eliminar el gasto.');
+    }
+  };
+
+  const nombreCategoria = (id_categoria) => {
+    const cat = categorias.find(c => c.id_categoria === id_categoria);
+    return cat ? cat.nombre_categoria : '—';
   };
 
   return (
@@ -135,9 +155,11 @@ const Gastos = ({ expenses, setExpenses, categorias, setCategorias }) => {
           <div className="gastos-fila">
             <label>
               <span>Categoría</span>
-              <select value={form.categoria} onChange={e => actualizarCampo('categoria', e.target.value)}>
+              <select value={form.id_categoria} onChange={e => actualizarCampo('id_categoria', e.target.value)}>
                 <option value="">Selecciona categoría</option>
-                {categorias.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                {categorias.map(cat => (
+                  <option key={cat.id_categoria} value={cat.id_categoria}>{cat.nombre_categoria}</option>
+                ))}
               </select>
             </label>
             <label>
@@ -176,12 +198,12 @@ const Gastos = ({ expenses, setExpenses, categorias, setCategorias }) => {
 
                 <div className="gestor-lista">
                   {categorias.map(cat => (
-                    <div key={cat} className="gestor-tag">
-                      <span>{cat}</span>
+                    <div key={cat.id_categoria} className="gestor-tag">
+                      <span>{cat.nombre_categoria}</span>
                       <button
                         type="button"
                         className="gestor-tag-eliminar"
-                        onClick={() => eliminarCategoria(cat)}
+                        onClick={() => eliminarCat(cat.id_categoria)}
                         title="Eliminar categoría"
                       >✕</button>
                     </div>
@@ -209,36 +231,38 @@ const Gastos = ({ expenses, setExpenses, categorias, setCategorias }) => {
               </thead>
               <tbody>
                 {expenses.map(exp => (
-                  <tr key={exp.id} className={editId === exp.id ? 'fila-editando' : ''}>
+                  <tr key={exp.id_gasto} className={editId === exp.id_gasto ? 'fila-editando' : ''}>
                     <td>
-                      {editId === exp.id
+                      {editId === exp.id_gasto
                         ? <input type="text" maxLength={100} value={editForm.descripcion}
                             onChange={e => actualizarCampoEdicion('descripcion', e.target.value)} />
                         : exp.descripcion}
                     </td>
                     <td>
-                      {editId === exp.id
-                        ? <select value={editForm.categoria}
-                            onChange={e => actualizarCampoEdicion('categoria', e.target.value)}>
+                      {editId === exp.id_gasto
+                        ? <select value={editForm.id_categoria || ''}
+                            onChange={e => actualizarCampoEdicion('id_categoria', e.target.value)}>
                             <option value="">Selecciona</option>
-                            {categorias.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                            {categorias.map(cat => (
+                              <option key={cat.id_categoria} value={cat.id_categoria}>{cat.nombre_categoria}</option>
+                            ))}
                           </select>
-                        : exp.categoria}
+                        : nombreCategoria(exp.id_categoria)}
                     </td>
                     <td>
-                      {editId === exp.id
+                      {editId === exp.id_gasto
                         ? <input type="text" maxLength={9} value={editForm.monto}
                             onChange={e => actualizarCampoEdicion('monto', e.target.value.replace(/[^0-9.,]/g, ''))} />
-                        : `S/ ${exp.monto.toFixed(2)}`}
+                        : `S/ ${Number(exp.monto).toFixed(2)}`}
                     </td>
                     <td>
-                      {editId === exp.id
-                        ? <input type="date" value={editForm.fecha}
+                      {editId === exp.id_gasto
+                        ? <input type="date" value={editForm.fecha?.slice(0, 10)}
                             onChange={e => actualizarCampoEdicion('fecha', e.target.value)} />
-                        : exp.fecha}
+                        : String(exp.fecha).slice(0, 10)}
                     </td>
                     <td>
-                      {editId === exp.id
+                      {editId === exp.id_gasto
                         ? <select value={editForm.estado}
                             onChange={e => actualizarCampoEdicion('estado', e.target.value)}>
                             {estadosDisponibles.map(est => <option key={est} value={est}>{est}</option>)}
@@ -246,7 +270,7 @@ const Gastos = ({ expenses, setExpenses, categorias, setCategorias }) => {
                         : exp.estado || 'Pendiente'}
                     </td>
                     <td className="acciones-col">
-                      {editId === exp.id ? (
+                      {editId === exp.id_gasto ? (
                         <>
                           <button className="btn-guardar" onClick={guardarEdicion}>Guardar</button>
                           <button className="btn-cancelar" onClick={cancelarEdicion}>Cancelar</button>
@@ -254,7 +278,7 @@ const Gastos = ({ expenses, setExpenses, categorias, setCategorias }) => {
                       ) : (
                         <>
                           <button className="btn-editar" onClick={() => iniciarEdicion(exp)}>Editar</button>
-                          <button className="btn-eliminar-gasto" onClick={() => eliminarGasto(exp.id)}>Eliminar</button>
+                          <button className="btn-eliminar-gasto" onClick={() => handleEliminarGasto(exp.id_gasto)}>Eliminar</button>
                         </>
                       )}
                     </td>

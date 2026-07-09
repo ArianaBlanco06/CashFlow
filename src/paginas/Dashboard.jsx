@@ -2,7 +2,7 @@ import { useState } from 'react';
 import '../estilos/dashboard.css';
 import { Link } from "react-router-dom";
 
-const Dashboard = ({ expenses, metaMensual, setMetaMensual }) => {
+const Dashboard = ({ expenses, metaMensual, setMetaMensual, categorias }) => {
   const hoy = new Date();
 
   const fechaActual = hoy.toLocaleDateString("es-PE", {
@@ -14,15 +14,21 @@ const Dashboard = ({ expenses, metaMensual, setMetaMensual }) => {
 
   const diaMes = hoy.getDate();
 
-  const totalGastado = expenses.reduce((acc, gasto) => acc + gasto.monto, 0);
+  const nombreCategoria = (id_categoria) => {
+    const cat = categorias.find(c => c.id_categoria === id_categoria);
+    return cat ? cat.nombre_categoria : 'Sin categoría';
+  };
+
+  const totalGastado = expenses.reduce((acc, gasto) => acc + Number(gasto.monto), 0);
   const gastosPendientes = expenses.filter((gasto) => gasto.estado === "Pendiente");
-  const categoriasActivas = [...new Set(expenses.map((gasto) => gasto.categoria))];
+  const categoriasActivas = [...new Set(expenses.map((gasto) => gasto.id_categoria))];
   const promedioDiario = (totalGastado / diaMes).toFixed(2);
 
   const gastosPorDia = {};
   expenses.forEach((gasto) => {
-    if (!gastosPorDia[gasto.fecha]) gastosPorDia[gasto.fecha] = 0;
-    gastosPorDia[gasto.fecha] += gasto.monto;
+    const fechaKey = String(gasto.fecha).slice(0, 10);
+    if (!gastosPorDia[fechaKey]) gastosPorDia[fechaKey] = 0;
+    gastosPorDia[fechaKey] += Number(gasto.monto);
   });
 
   let mayorGastoFecha = "Sin datos";
@@ -57,13 +63,14 @@ const Dashboard = ({ expenses, metaMensual, setMetaMensual }) => {
     .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
     .slice(0, 5);
 
-  const categorias = {};
+  const categoriasResumen = {};
   expenses.forEach((gasto) => {
-    if (!categorias[gasto.categoria]) {
-      categorias[gasto.categoria] = { total: 0, cantidad: 0 };
+    const nombre = nombreCategoria(gasto.id_categoria);
+    if (!categoriasResumen[nombre]) {
+      categoriasResumen[nombre] = { total: 0, cantidad: 0 };
     }
-    categorias[gasto.categoria].total += gasto.monto;
-    categorias[gasto.categoria].cantidad += 1;
+    categoriasResumen[nombre].total += Number(gasto.monto);
+    categoriasResumen[nombre].cantidad += 1;
   });
 
   const recomendaciones = [];
@@ -75,8 +82,8 @@ const Dashboard = ({ expenses, metaMensual, setMetaMensual }) => {
       link: "/expenses",
     });
   }
-  for (let categoria in categorias) {
-    if (categorias[categoria].total > metaMensual * 0.5) {
+  for (let categoria in categoriasResumen) {
+    if (categoriasResumen[categoria].total > metaMensual * 0.5) {
       recomendaciones.push({
         icono: "📊",
         texto: `${categoria} consume más de la mitad de tu presupuesto`,
@@ -189,15 +196,15 @@ const Dashboard = ({ expenses, metaMensual, setMetaMensual }) => {
             {recientes.map((gasto) => (
               <div
                 className={`actividad-item ${gasto.estado === "Pagado" ? "actividad-pagado" : "actividad-pendiente"}`}
-                key={gasto.id}
+                key={gasto.id_gasto}
               >
                 <div>
                   <h4>{gasto.descripcion}</h4>
-                  <p>{gasto.categoria}</p>
+                  <p>{nombreCategoria(gasto.id_categoria)}</p>
                   <span>{tiempoTranscurrido(gasto.fecha)}</span>
                 </div>
                 <div className="actividad-derecha">
-                  <strong>S/ {gasto.monto}</strong>
+                  <strong>S/ {Number(gasto.monto).toFixed(2)}</strong>
                   <p>{gasto.estado}</p>
                 </div>
               </div>
@@ -230,7 +237,7 @@ const Dashboard = ({ expenses, metaMensual, setMetaMensual }) => {
       <div className="dashboard-card">
         <h2>Resumen por Categoría</h2>
         <div className="categorias-lista">
-          {Object.entries(categorias).map(([categoria, data]) => {
+          {Object.entries(categoriasResumen).map(([categoria, data]) => {
             const porcentaje = ((data.total / totalGastado) * 100).toFixed(1);
             return (
               <div className="categoria-card" key={categoria}>
