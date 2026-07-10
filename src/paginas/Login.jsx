@@ -1,26 +1,29 @@
 import { useState } from 'react';
-import { mockUsuarios } from '../data/mock.Usuarios';
+import axios from 'axios';
+import '../estilos/login.css';
 
-// ── Evalúa la fortaleza de la contraseña ──
+const API_URL = import.meta.env.VITE_API_URL;
+
 const evaluarFortaleza = (clave) => {
   if (clave.length === 0) return null;
-  if (clave.length < 6)   return { nivel: 'Débil',   clase: 'fuerza-debil'  };
-  if (clave.length < 10 && !/[0-9]/.test(clave))  return { nivel: 'Media',   clase: 'fuerza-media'  };
+  if (clave.length < 6)   return { nivel: 'Débil',  clase: 'fuerza-debil'  };
+  if (clave.length < 10 && !/[0-9]/.test(clave)) return { nivel: 'Media',  clase: 'fuerza-media'  };
   if (clave.length >= 10 || (/[0-9]/.test(clave) && /[A-Z]/.test(clave))) return { nivel: 'Fuerte', clase: 'fuerza-fuerte' };
   return { nivel: 'Media', clase: 'fuerza-media' };
 };
 
-const Login = ({ onLogin, usuarios, setUsuarios }) => {
-  const [vista, setVista]           = useState('login'); // 'login' | 'registro' | 'bienvenida'
+const Login = ({ onLogin }) => {
+  const [vista, setVista]           = useState('login');
   const [usuarioInput, setUsuarioInput] = useState('');
   const [claveInput, setClaveInput]     = useState('');
   const [errorLogin, setErrorLogin]     = useState('');
+  const [mostrarClave, setMostrarClave] = useState(false);
+  const [cargando, setCargando]         = useState(false);
 
-  // Campos de registro
-  const [regNombre,   setRegNombre]   = useState('');
-  const [regUsuario,  setRegUsuario]  = useState('');
-  const [regClave,    setRegClave]    = useState('');
-  const [regConfirm,  setRegConfirm]  = useState('');
+  const [regNombre,  setRegNombre]  = useState('');
+  const [regUsuario, setRegUsuario] = useState('');
+  const [regClave,   setRegClave]   = useState('');
+  const [regConfirm, setRegConfirm] = useState('');
   const [regNombreError,  setRegNombreError]  = useState('');
   const [regUsuarioError, setRegUsuarioError] = useState('');
   const [regClaveError,   setRegClaveError]   = useState('');
@@ -29,96 +32,78 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
 
   const fortaleza = evaluarFortaleza(regClave);
 
-  // ── LOGIN ──
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (usuarioInput.trim() === '' || claveInput.trim() === '') {
       setErrorLogin('Por favor completa todos los campos.');
       return;
     }
-    const encontrado = usuarios.find(
-      u => u.usuario === usuarioInput && u.clave === claveInput
-    );
-    if (!encontrado) {
-      setErrorLogin('Usuario o contraseña incorrectos.');
-      return;
-    }
-    if (encontrado.estado === 'suspendido') {
-      setErrorLogin('Tu cuenta está suspendida. Contacta al administrador.');
-      return;
-    }
+    setCargando(true);
     setErrorLogin('');
-    onLogin(encontrado);
+    try {
+      const { data } = await axios.post(`${API_URL}/usuarios/login`, {
+        usuario: usuarioInput,
+        clave: claveInput,
+      });
+      localStorage.setItem('token', data.token);
+      onLogin(data.usuario);
+    } catch (error) {
+      if (error.response?.status === 401) {
+        setErrorLogin('Usuario o contraseña incorrectos.');
+      } else {
+        setErrorLogin('Error al conectar con el servidor.');
+      }
+    } finally {
+      setCargando(false);
+    }
   };
 
-  // ── REGISTRO ──
-  const handleRegistro = () => {
+  const handleRegistro = async () => {
     let valido = true;
-
-    if (regNombre.trim() === '') {
-      setRegNombreError('El nombre es obligatorio.');
-      valido = false;
-    } else {
-      setRegNombreError('');
-    }
-
-    if (regUsuario.trim() === '') {
-      setRegUsuarioError('El usuario es obligatorio.');
-      valido = false;
-    } else if (usuarios.find(u => u.usuario === regUsuario.trim())) {
-      setRegUsuarioError('Este usuario ya existe.');
-      valido = false;
-    } else {
-      setRegUsuarioError('');
-    }
-
-    if (regClave.length < 6) {
-      setRegClaveError('La contraseña debe tener al menos 6 caracteres.');
-      valido = false;
-    } else {
-      setRegClaveError('');
-    }
-
-    if (regConfirm !== regClave) {
-      setRegConfirmError('Las contraseñas no coinciden.');
-      valido = false;
-    } else {
-      setRegConfirmError('');
-    }
-
+    if (regNombre.trim() === '')  { setRegNombreError('El nombre es obligatorio.'); valido = false; } else setRegNombreError('');
+    if (regUsuario.trim() === '') { setRegUsuarioError('El usuario es obligatorio.'); valido = false; } else setRegUsuarioError('');
+    if (regClave.length < 6)      { setRegClaveError('Mínimo 6 caracteres.'); valido = false; } else setRegClaveError('');
+    if (regConfirm !== regClave)  { setRegConfirmError('Las contraseñas no coinciden.'); valido = false; } else setRegConfirmError('');
     if (!valido) return;
 
-    const nuevoUsuario = {
-      id: usuarios.length + 1,
-      nombre: regNombre.trim(),
-      usuario: regUsuario.trim(),
-      clave: regClave,
-      rol: 'usuario',
-      estado: 'activo'
-    };
-
-    setUsuarios([...usuarios, nuevoUsuario]);
-    setNombreRegistrado(regNombre.trim());
-
-    // Limpiar campos
-    setRegNombre(''); setRegUsuario(''); setRegClave(''); setRegConfirm('');
-    setVista('bienvenida');
-
-    // Redirigir al login tras 2.5 segundos
-    setTimeout(() => setVista('login'), 2500);
+    setCargando(true);
+    try {
+      await axios.post(`${API_URL}/usuarios/registro`, {
+        nombre: regNombre.trim(),
+        usuario: regUsuario.trim(),
+        clave: regClave,
+      });
+      setNombreRegistrado(regNombre.trim());
+      setRegNombre(''); setRegUsuario(''); setRegClave(''); setRegConfirm('');
+      setVista('bienvenida');
+      setTimeout(() => setVista('login'), 2500);
+    } catch (error) {
+      if (error.response?.status === 409) {
+        setRegUsuarioError('Este usuario ya existe.');
+      } else {
+        setRegUsuarioError('Error al conectar con el servidor.');
+      }
+    } finally {
+      setCargando(false);
+    }
   };
 
-  // ── VISTA: BIENVENIDA ──
   if (vista === 'bienvenida') {
     return (
       <div className="login-fondo">
-        <div className="login-card">
-          <div className="login-header">
-            <span className="login-icono">🎉</span>
-            <h1 className="login-titulo">¡Bienvenido!</h1>
-            <p className="login-subtitulo">Tu cuenta fue creada exitosamente, {nombreRegistrado}.</p>
+        <div className="login-izq">
+          <div className="login-brand">
+            <span className="login-logo">💰</span>
+            <span className="login-app-nombre">CashFlow</span>
           </div>
-          <div className="login-body">
-            <p style={{ textAlign: 'center', color: '#555', fontSize: '0.9rem' }}>
+        </div>
+        <div className="login-der">
+          <div className="login-card">
+            <div className="login-card-header">
+              <span style={{ fontSize: '2rem' }}>🎉</span>
+              <h2>¡Bienvenido, {nombreRegistrado}!</h2>
+              <p>Tu cuenta fue creada exitosamente.</p>
+            </div>
+            <p style={{ textAlign: 'center', color: '#888', fontSize: '0.85rem', marginTop: '1rem' }}>
               Redirigiendo al inicio de sesión...
             </p>
           </div>
@@ -127,33 +112,50 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
     );
   }
 
-  // ── VISTA: REGISTRO ──
   if (vista === 'registro') {
     return (
       <div className="login-fondo">
-        <div className="login-card">
-          <div className="login-header">
-            <span className="login-icono">📝</span>
-            <h1 className="login-titulo">Crear cuenta</h1>
-            <p className="login-subtitulo">Completa los campos para registrarte</p>
+        <div className="login-izq">
+          <div className="login-brand">
+            <span className="login-logo">💰</span>
+            <span className="login-app-nombre">CashFlow</span>
           </div>
-          <div className="login-body">
+          <h1 className="login-tagline">Gestiona tus finanzas<br />con inteligencia.</h1>
+          <p className="login-desc">Registra gastos, emite facturas, visualiza reportes y toma
+          decisiones basadas en datos reales.</p>
+          <div className="login-features">
+            <div className="login-feature"><span>📊</span><span>Dashboard financiero en tiempo real</span></div>
+            <div className="login-feature"><span>🧾</span><span>Gestión de gastos y facturas</span></div>
+            <div className="login-feature"><span>🎯</span><span>Control de metas y presupuesto</span></div>
+            <div className="login-feature"><span>🔔</span><span>Recordatorios y alertas de vencimiento</span></div>
+          </div>
+        </div>
+
+        <div className="login-der">
+          <div className="login-card">
+            <div className="login-card-header">
+              <h2>Crear cuenta</h2>
+              <p>Completa los campos para registrarte</p>
+            </div>
 
             <div className="login-campo">
               <label>Nombre completo</label>
-              <input type="text" placeholder="Ej: Juan Pérez" value={regNombre} onChange={e => setRegNombre(e.target.value)} />
+              <input type="text" autoComplete="off" placeholder="Ej: Juan Pérez" value={regNombre}
+                onChange={e => setRegNombre(e.target.value)} />
               {regNombreError && <span className="login-campo-error">{regNombreError}</span>}
             </div>
 
             <div className="login-campo">
               <label>Usuario</label>
-              <input type="text" placeholder="Ej: juan123" value={regUsuario} onChange={e => setRegUsuario(e.target.value)} />
+              <input type="text" autoComplete="off"  placeholder="Ej: juan123" value={regUsuario}
+                onChange={e => setRegUsuario(e.target.value)} />
               {regUsuarioError && <span className="login-campo-error">{regUsuarioError}</span>}
             </div>
 
             <div className="login-campo">
               <label>Contraseña</label>
-              <input type="password" placeholder="Mínimo 6 caracteres" value={regClave} onChange={e => setRegClave(e.target.value)} />
+              <input type="password" autoComplete="new-password" placeholder="Mínimo 6 caracteres" value={regClave}
+                onChange={e => setRegClave(e.target.value)} />
               {regClave.length > 0 && fortaleza && (
                 <div className="fuerza-contenedor">
                   <div className={`fuerza-barra ${fortaleza.clase}`}></div>
@@ -165,42 +167,59 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
 
             <div className="login-campo">
               <label>Confirmar contraseña</label>
-              <input type="password" placeholder="Repite tu contraseña" value={regConfirm} onChange={e => setRegConfirm(e.target.value)} />
+              <input type="password" autoComplete="new-password" placeholder="Repite tu contraseña" value={regConfirm}
+                onChange={e => setRegConfirm(e.target.value)} />
               {regConfirmError && <span className="login-campo-error">{regConfirmError}</span>}
             </div>
 
-            <button className="login-btn" onClick={handleRegistro}>
-              Crear cuenta
+            <button className="login-btn" onClick={handleRegistro} disabled={cargando}>
+              {cargando ? 'Creando...' : 'Crear cuenta'}
             </button>
 
-            <p style={{ textAlign: 'center', fontSize: '0.85rem', color: '#666' }}>
+            <p className="login-switch">
               ¿Ya tienes cuenta?{' '}
-              <span className="login-link" onClick={() => setVista('login')}>
-                Inicia sesión
-              </span>
+              <span className="login-link" onClick={() => setVista('login')}>Inicia sesión</span>
             </p>
-
           </div>
         </div>
       </div>
     );
   }
 
-  // ── VISTA: LOGIN ──
   return (
     <div className="login-fondo">
-      <div className="login-card">
-        <div className="login-header">
-          <span className="login-icono">💰</span>
-          <h1 className="login-titulo">Gestor de Gastos</h1>
-          <p className="login-subtitulo">Inicia sesión para continuar</p>
+      <div className="login-izq">
+        <div className="login-brand">
+          <span className="login-logo">💰</span>
+          <span className="login-app-nombre">CashFlow</span>
         </div>
-        <div className="login-body">
+
+        <h1 className="login-tagline">Gestiona tus finanzas<br />con inteligencia.</h1>
+        <p className="login-desc">
+          Registra gastos, emite facturas, visualiza reportes y toma
+          decisiones basadas en datos reales.
+        </p>
+
+        <div className="login-features">
+          <div className="login-feature"><span>📊</span><span>Dashboard financiero en tiempo real</span></div>
+          <div className="login-feature"><span>🧾</span><span>Gestión de gastos y facturas</span></div>
+          <div className="login-feature"><span>🎯</span><span>Control de metas y presupuesto</span></div>
+          <div className="login-feature"><span>🔔</span><span>Recordatorios y alertas de vencimiento</span></div>
+        </div>
+      </div>
+
+      <div className="login-der">
+        <div className="login-card">
+          <div className="login-card-header">
+            <h2>Bienvenido de vuelta</h2>
+            <p>Inicia sesión para continuar</p>
+          </div>
 
           <div className="login-campo">
             <label>Usuario</label>
             <input
               type="text"
+              autoComplete="off"
               placeholder="Ej: admin"
               value={usuarioInput}
               onChange={e => { setUsuarioInput(e.target.value); setErrorLogin(''); }}
@@ -209,32 +228,37 @@ const Login = ({ onLogin, usuarios, setUsuarios }) => {
 
           <div className="login-campo">
             <label>Contraseña</label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={claveInput}
-              onChange={e => { setClaveInput(e.target.value); setErrorLogin(''); }}
-            />
+            <div className="login-input-wrapper">
+              <input
+                type={mostrarClave ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={claveInput}
+                onChange={e => { setClaveInput(e.target.value); setErrorLogin(''); }}
+              />
+              <button
+                type="button"
+                className="login-ojo"
+                onClick={() => setMostrarClave(!mostrarClave)}
+              >
+                {mostrarClave ? '🙈' : '👁️'}
+              </button>
+            </div>
           </div>
 
           {errorLogin && <div className="login-error">⚠ {errorLogin}</div>}
 
-          <button className="login-btn" onClick={handleLogin}>
-            Ingresar →
+          <button className="login-btn" onClick={handleLogin} disabled={cargando}>
+            {cargando ? 'Ingresando...' : 'Ingresar →'}
           </button>
 
-          <p style={{ textAlign: 'center', fontSize: '0.85rem', color: '#666' }}>
+          <p className="login-switch">
             ¿No tienes cuenta?{' '}
-            <span className="login-link" onClick={() => setVista('registro')}>
-              Regístrate
-            </span>
+            <span className="login-link" onClick={() => setVista('registro')}>Regístrate</span>
           </p>
 
           <div className="login-hint">
-            <p><strong>Admin:</strong> admin / 1234</p>
-            <p><strong>Usuario:</strong> juan / 1234</p>
+            <p><strong>Admin:</strong> admin / admin123</p>
           </div>
-
         </div>
       </div>
     </div>

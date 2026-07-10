@@ -1,32 +1,50 @@
 import { useState } from 'react';
+import '../estilos/filtros.css';
 
-const ReporteFiltros = ({ expenses }) => {
-  // ── Estados para filtros ──
+const ReporteFiltros = ({ expenses, categorias }) => {
+
   const [categoria, setCategoria] = useState('');
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
 
-  // ── Estados para recordatorios ──
-  const [recordatorios, setRecordatorios] = useState([
-    { id: 1, descripcion: 'Pagar internet', categoria: 'Servicios', fechaLimite: '2026-05-20', completado: false },
-    { id: 2, descripcion: 'Revisar gastos del mes', categoria: 'Educación', fechaLimite: '2026-06-01', completado: false }
-  ]);
+  const [recordatorios, setRecordatorios] = useState(() => {
+    try {
+      const guardado = localStorage.getItem('recordatorios');
+      return guardado ? JSON.parse(guardado) : [
+        { id: 1, descripcion: 'Pagar internet', categoria: 'Servicios', fechaLimite: '2026-05-20', completado: false },
+        { id: 2, descripcion: 'Revisar gastos del mes', categoria: 'Educación', fechaLimite: '2026-06-01', completado: false }
+      ];
+    } catch {
+      return [];
+    }
+  });
+
+  const guardarRecordatorios = (nuevos) => {
+    const lista = typeof nuevos === 'function' ? nuevos(recordatorios) : nuevos;
+    setRecordatorios(lista);
+    localStorage.setItem('recordatorios', JSON.stringify(lista));
+  };
+
   const [nuevoDesc, setNuevoDesc] = useState('');
   const [nuevaCat, setNuevaCat] = useState('');
   const [nuevaFecha, setNuevaFecha] = useState('');
 
   const hoy = new Date().toISOString().split('T')[0];
 
-  // ── Filtrado de gastos ──
+  const nombreCategoria = (id_categoria) => {
+    const cat = categorias.find(c => c.id_categoria === id_categoria);
+    return cat ? cat.nombre_categoria : '';
+  };
+
   const filtered = expenses.filter(exp => {
+    const nombreCat = nombreCategoria(exp.id_categoria).toLowerCase();
     return (
-      exp.categoria.toLowerCase().includes(categoria.toLowerCase()) &&
-      (fechaInicio === '' || exp.fecha >= fechaInicio) &&
-      (fechaFin === '' || exp.fecha <= fechaFin)
+      nombreCat.includes(categoria.toLowerCase()) &&
+      (fechaInicio === '' || String(exp.fecha).slice(0, 10) >= fechaInicio) &&
+      (fechaFin === '' || String(exp.fecha).slice(0, 10) <= fechaFin)
     );
   });
 
-  // ── Agregar recordatorio ──
   const agregarRecordatorio = () => {
     if (nuevoDesc.trim() === '' || nuevaFecha === '') return;
     const nuevo = {
@@ -36,13 +54,12 @@ const ReporteFiltros = ({ expenses }) => {
       fechaLimite: nuevaFecha,
       completado: false
     };
-    setRecordatorios([...recordatorios, nuevo]);
+    guardarRecordatorios([...recordatorios, nuevo]);
     setNuevoDesc('');
     setNuevaCat('');
     setNuevaFecha('');
   };
 
-  // ── Marcar/desmarcar completado ──
   const toggleCompletado = (id) => {
     const actualizados = recordatorios.map(r => {
       if (r.id === id) {
@@ -50,13 +67,12 @@ const ReporteFiltros = ({ expenses }) => {
       }
       return r;
     });
-    setRecordatorios(actualizados);
+    guardarRecordatorios(actualizados);
   };
 
-  // ── Eliminar recordatorio ──
   const eliminarRecordatorio = (id) => {
     const filtrados = recordatorios.filter(r => r.id !== id);
-    setRecordatorios(filtrados);
+    guardarRecordatorios(filtrados);
   };
 
   return (
@@ -83,11 +99,11 @@ const ReporteFiltros = ({ expenses }) => {
         </thead>
         <tbody>
           {filtered.map(exp => (
-            <tr key={exp.id}>
+            <tr key={exp.id_gasto}>
               <td>{exp.descripcion}</td>
-              <td>{exp.categoria}</td>
-              <td>S/ {exp.monto}</td>
-              <td>{exp.fecha}</td>
+              <td>{nombreCategoria(exp.id_categoria)}</td>
+              <td>S/ {Number(exp.monto).toFixed(2)}</td>
+              <td>{String(exp.fecha).slice(0, 10)}</td>
             </tr>
           ))}
           {filtered.length === 0 && (
@@ -98,7 +114,6 @@ const ReporteFiltros = ({ expenses }) => {
         </tbody>
       </table>
 
-      {/* ════ RECORDATORIOS ════ */}
       <h3 style={{ marginTop: '2.5rem', marginBottom: '1rem' }}>🔔 Recordatorios</h3>
 
       <div className="recordatorio-form">
