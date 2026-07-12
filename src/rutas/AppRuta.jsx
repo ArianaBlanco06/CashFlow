@@ -27,12 +27,13 @@ const AppRuta = () => {
     return guardado ? JSON.parse(guardado) : null;
   });
 
-  const [usuarios, setUsuarios]     = useState([]);
-  const [categorias, setCategorias] = useState([]);
-  const [facturas, setFacturas]     = useState([]);
-  const [clientes, setClientes]     = useState([]);
-  const [expenses, setExpenses]     = useState([]);
-  const [metaMensual, setMetaMensual] = useState(500);
+  const [usuarios, setUsuarios]           = useState([]);
+  const [categorias, setCategorias]       = useState([]);
+  const [facturas, setFacturas]           = useState([]);
+  const [clientes, setClientes]           = useState([]);
+  const [expenses, setExpenses]           = useState([]);
+  const [recordatorios, setRecordatorios] = useState([]);
+  const [metaMensual, setMetaMensual]     = useState(500);
 
   // Cargar datos desde la API cuando hay un usuario logueado
   useEffect(() => {
@@ -53,6 +54,20 @@ const AppRuta = () => {
     axios.get(`${API_URL}/clientes`)
       .then(res => setClientes(res.data))
       .catch(err => console.error('Error al cargar clientes:', err));
+
+    axios.get(`${API_URL}/recordatorios?id_usuario=${usuarioActivo.id}`)
+      .then(res => setRecordatorios(res.data))
+      .catch(err => console.error('Error al cargar recordatorios:', err));
+
+    axios.get(`${API_URL}/metas?id_usuario=${usuarioActivo.id}`)
+      .then(res => {
+        const hoy = new Date();
+        const meta = res.data.find(
+          m => Number(m.mes) === hoy.getMonth() + 1 && Number(m.anio) === hoy.getFullYear()
+        );
+        if (meta) setMetaMensual(Number(meta.monto_meta));
+      })
+      .catch(err => console.error('Error al cargar meta:', err));
 
     if (usuarioActivo.rol === 'admin') {
       axios.get(`${API_URL}/usuarios`)
@@ -100,6 +115,47 @@ const AppRuta = () => {
   const eliminarCategoria = async (id_categoria) => {
     await axios.delete(`${API_URL}/categorias/${id_categoria}`);
     setCategorias(prev => prev.filter(c => c.id_categoria !== id_categoria));
+  };
+
+  // --- Meta mensual ---
+  const guardarMeta = async (monto) => {
+    setMetaMensual(monto); // actualización inmediata en la UI
+    const hoy = new Date();
+    try {
+      const { data } = await axios.post(`${API_URL}/metas`, {
+        monto_meta: monto,
+        mes: hoy.getMonth() + 1,
+        anio: hoy.getFullYear(),
+        id_usuario: usuarioActivo.id,
+      });
+      setMetaMensual(Number(data.monto_meta));
+    } catch (err) {
+      console.error('Error al guardar meta:', err);
+    }
+  };
+
+  // --- Recordatorios ---
+  const crearRecordatorio = async (rec) => {
+    const { data } = await axios.post(`${API_URL}/recordatorios`, {
+      ...rec,
+      id_usuario: usuarioActivo.id,
+    });
+    setRecordatorios(prev => [data, ...prev]);
+  };
+
+  const actualizarRecordatorio = async (rec) => {
+    const { data } = await axios.put(
+      `${API_URL}/recordatorios/${rec.id_recordatorio}`,
+      rec
+    );
+    setRecordatorios(prev =>
+      prev.map(r => (r.id_recordatorio === data.id_recordatorio ? data : r))
+    );
+  };
+
+  const eliminarRecordatorio = async (id) => {
+    await axios.delete(`${API_URL}/recordatorios/${id}`);
+    setRecordatorios(prev => prev.filter(r => r.id_recordatorio !== id));
   };
 
   // --- Facturas ---
@@ -168,7 +224,7 @@ const AppRuta = () => {
             <Dashboard
               expenses={expenses}
               metaMensual={metaMensual}
-              setMetaMensual={setMetaMensual}
+              setMetaMensual={guardarMeta}
               categorias={categorias}
             />
           } />
@@ -187,7 +243,14 @@ const AppRuta = () => {
             <Reportes expenses={expenses} metaMensual={metaMensual} categorias={categorias} />
           } />
           <Route path="/reporteFiltros" element={
-            <ReporteFiltros expenses={expenses} categorias={categorias} />
+            <ReporteFiltros
+              expenses={expenses}
+              categorias={categorias}
+              recordatorios={recordatorios}
+              crearRecordatorio={crearRecordatorio}
+              actualizarRecordatorio={actualizarRecordatorio}
+              eliminarRecordatorio={eliminarRecordatorio}
+            />
           } />
           <Route path="/perfil" element={
             <Perfil usuario={usuarioActivo} actualizarUsuario={actualizarUsuario} setUsuarioActivo={setUsuarioActivo} />

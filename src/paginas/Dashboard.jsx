@@ -1,9 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../estilos/dashboard.css';
 import { Link } from "react-router-dom";
 
 const Dashboard = ({ expenses, metaMensual, setMetaMensual, categorias }) => {
   const hoy = new Date();
+
+  const [metaInput, setMetaInput] = useState(metaMensual === 0 ? '' : String(metaMensual));
+
+  // Sincroniza el input cuando la meta llega desde la API
+  useEffect(() => {
+    setMetaInput(metaMensual === 0 ? '' : String(metaMensual));
+  }, [metaMensual]);
 
   const fechaActual = hoy.toLocaleDateString("es-PE", {
     weekday: "long",
@@ -111,6 +118,13 @@ const Dashboard = ({ expenses, metaMensual, setMetaMensual, categorias }) => {
     return `Hace ${dias} días`;
   };
 
+  const guardarMetaInput = () => {
+    const num = metaInput === '' ? 0 : Number(metaInput);
+    if (num > 0 && num !== metaMensual) {
+      setMetaMensual(num); // dispara guardarMeta en AppRuta (POST a la API)
+    }
+  };
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
@@ -174,12 +188,11 @@ const Dashboard = ({ expenses, metaMensual, setMetaMensual, categorias }) => {
           <input
             type="text"
             className="meta-input"
-            value={metaMensual === 0 ? '' : metaMensual}
+            value={metaInput}
             placeholder="Ej: 500"
-            onChange={(e) => {
-              const val = e.target.value.replace(/[^0-9]/g, '');
-              setMetaMensual(val === '' ? 0 : Number(val));
-            }}
+            onChange={(e) => setMetaInput(e.target.value.replace(/[^0-9]/g, ''))}
+            onBlur={guardarMetaInput}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
           />
           <div className="meta-info">
             <p><strong>Gastado:</strong> S/ {totalGastado.toFixed(2)}</p>

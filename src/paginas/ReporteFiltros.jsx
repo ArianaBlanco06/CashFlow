@@ -1,29 +1,18 @@
 import { useState } from 'react';
 import '../estilos/filtros.css';
 
-const ReporteFiltros = ({ expenses, categorias }) => {
+const ReporteFiltros = ({
+  expenses,
+  categorias,
+  recordatorios,
+  crearRecordatorio,
+  actualizarRecordatorio,
+  eliminarRecordatorio,
+}) => {
 
   const [categoria, setCategoria] = useState('');
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
-
-  const [recordatorios, setRecordatorios] = useState(() => {
-    try {
-      const guardado = localStorage.getItem('recordatorios');
-      return guardado ? JSON.parse(guardado) : [
-        { id: 1, descripcion: 'Pagar internet', categoria: 'Servicios', fechaLimite: '2026-05-20', completado: false },
-        { id: 2, descripcion: 'Revisar gastos del mes', categoria: 'Educación', fechaLimite: '2026-06-01', completado: false }
-      ];
-    } catch {
-      return [];
-    }
-  });
-
-  const guardarRecordatorios = (nuevos) => {
-    const lista = typeof nuevos === 'function' ? nuevos(recordatorios) : nuevos;
-    setRecordatorios(lista);
-    localStorage.setItem('recordatorios', JSON.stringify(lista));
-  };
 
   const [nuevoDesc, setNuevoDesc] = useState('');
   const [nuevaCat, setNuevaCat] = useState('');
@@ -45,34 +34,21 @@ const ReporteFiltros = ({ expenses, categorias }) => {
     );
   });
 
-  const agregarRecordatorio = () => {
+  const agregarRecordatorio = async () => {
     if (nuevoDesc.trim() === '' || nuevaFecha === '') return;
-    const nuevo = {
-      id: recordatorios.length + 1,
-      descripcion: nuevoDesc,
-      categoria: nuevaCat,
-      fechaLimite: nuevaFecha,
-      completado: false
-    };
-    guardarRecordatorios([...recordatorios, nuevo]);
+    await crearRecordatorio({
+      descripcion: nuevoDesc.trim(),
+      fecha_limite: nuevaFecha,
+      completado: 0,
+      id_categoria: nuevaCat === '' ? null : Number(nuevaCat),
+    });
     setNuevoDesc('');
     setNuevaCat('');
     setNuevaFecha('');
   };
 
-  const toggleCompletado = (id) => {
-    const actualizados = recordatorios.map(r => {
-      if (r.id === id) {
-        return { ...r, completado: !r.completado };
-      }
-      return r;
-    });
-    guardarRecordatorios(actualizados);
-  };
-
-  const eliminarRecordatorio = (id) => {
-    const filtrados = recordatorios.filter(r => r.id !== id);
-    guardarRecordatorios(filtrados);
+  const toggleCompletado = (r) => {
+    actualizarRecordatorio({ ...r, completado: r.completado ? 0 : 1 });
   };
 
   return (
@@ -118,7 +94,12 @@ const ReporteFiltros = ({ expenses, categorias }) => {
 
       <div className="recordatorio-form">
         <input type="text" value={nuevoDesc} onChange={e => setNuevoDesc(e.target.value)} placeholder="Descripción del recordatorio" style={{ flex: '2' }} />
-        <input type="text" value={nuevaCat} onChange={e => setNuevaCat(e.target.value)} placeholder="Categoría (opcional)" style={{ flex: '1' }} />
+        <select value={nuevaCat} onChange={e => setNuevaCat(e.target.value)} style={{ flex: '1' }}>
+          <option value="">Categoría (opcional)</option>
+          {categorias.map(c => (
+            <option key={c.id_categoria} value={c.id_categoria}>{c.nombre_categoria}</option>
+          ))}
+        </select>
         <input type="date" value={nuevaFecha} onChange={e => setNuevaFecha(e.target.value)} />
         <button onClick={agregarRecordatorio}>+ Agregar</button>
       </div>
@@ -128,19 +109,21 @@ const ReporteFiltros = ({ expenses, categorias }) => {
           <p style={{ color: '#999', fontSize: '0.9rem' }}>No hay recordatorios configurados.</p>
         )}
         {recordatorios.map(r => {
-          const vencido = !r.completado && r.fechaLimite < hoy;
+          const fechaLimite = String(r.fecha_limite).slice(0, 10);
+          const completado = Number(r.completado) === 1;
+          const vencido = !completado && fechaLimite < hoy;
           return (
-            <div key={r.id} className={'recordatorio-item' + (r.completado ? ' recordatorio-completado' : '') + (vencido ? ' recordatorio-vencido' : '')}>
-              <input type="checkbox" checked={r.completado} onChange={() => toggleCompletado(r.id)} />
+            <div key={r.id_recordatorio} className={'recordatorio-item' + (completado ? ' recordatorio-completado' : '') + (vencido ? ' recordatorio-vencido' : '')}>
+              <input type="checkbox" checked={completado} onChange={() => toggleCompletado(r)} />
               <div className="recordatorio-texto">
                 <span className="recordatorio-desc">{r.descripcion}</span>
-                {r.categoria !== '' && <span className="recordatorio-cat">{r.categoria}</span>}
+                {r.id_categoria && <span className="recordatorio-cat">{nombreCategoria(r.id_categoria)}</span>}
               </div>
               <div className="recordatorio-fecha">
                 {vencido && <span className="badge-vencido">⚠️ Vencido</span>}
-                <span>{r.fechaLimite}</span>
+                <span>{fechaLimite}</span>
               </div>
-              <button className="btn-eliminar-recordatorio" onClick={() => eliminarRecordatorio(r.id)} title="Eliminar">✕</button>
+              <button className="btn-eliminar-recordatorio" onClick={() => eliminarRecordatorio(r.id_recordatorio)} title="Eliminar">✕</button>
             </div>
           );
         })}
